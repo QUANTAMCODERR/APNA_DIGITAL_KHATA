@@ -6,6 +6,7 @@ from app.core.config import settings
 from app.core.database import engine
 from app.api.auth import router as auth_router
 from app.api.shop import router as shop_router
+from app.api.customer import router as customer_router
 
 
 app = FastAPI(
@@ -25,6 +26,14 @@ app.include_router(
     shop_router,
     prefix=settings.API_V1_PREFIX
 )
+
+
+app.include_router(
+    customer_router,
+    prefix=settings.API_V1_PREFIX
+)
+
+
 
 @app.get("/")
 async def root():
@@ -103,3 +112,6 @@ async def verify_database_tables():
 @app.on_event("shutdown")
 async def shutdown():
     await engine.dispose()
+
+
+
