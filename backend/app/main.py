@@ -1,6 +1,10 @@
 
 from fastapi import FastAPI
+from sqlalchemy import text
+
 from app.core.config import settings
+from app.core.database import engine
+
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -14,7 +18,6 @@ app = FastAPI(
 async def root():
     return {
         "message": f"{settings.APP_NAME} API is running!",
-        "environment": settings.APP_ENV,
         "status": "success"
     }
 
@@ -24,3 +27,22 @@ async def health_check():
     return {
         "status": "healthy"
     }
+
+
+@app.get("/health/db")
+async def database_health():
+
+    async with engine.connect() as connection:
+
+        result = await connection.execute(text("SELECT 1"))
+
+        return {
+            "status": "connected",
+            "database": "Neon PostgreSQL",
+            "result": result.scalar()
+        }
+
+
+@app.on_event("shutdown")
+async def shutdown():
+    await engine.dispose()
