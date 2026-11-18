@@ -19,11 +19,19 @@ database_url = database_url.set(
 )
 
 
+
 engine = create_async_engine(
     database_url,
-    connect_args={"ssl": "require"},
-    pool_pre_ping=True
+    connect_args={
+        "ssl": "require",
+        "statement_cache_size": 0
+    },
+    pool_pre_ping=True,
+    pool_recycle=300,
+    pool_size=3,
+    max_overflow=2
 )
+
 
 
 # Base class for all database models

@@ -4,6 +4,7 @@ from sqlalchemy import text
 
 from app.core.config import settings
 from app.core.database import engine
+from app.api.auth import router as auth_router
 
 
 app = FastAPI(
@@ -13,6 +14,11 @@ app = FastAPI(
     debug=settings.DEBUG
 )
 
+
+app.include_router(
+    auth_router,
+    prefix=settings.API_V1_PREFIX
+)
 
 @app.get("/")
 async def root():
