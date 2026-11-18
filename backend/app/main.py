@@ -43,6 +43,51 @@ async def database_health():
         }
 
 
+
+
+
+@app.get("/health/db/tables")
+async def verify_database_tables():
+
+    async with engine.connect() as connection:
+
+        result = await connection.execute(
+            text("""
+                SELECT table_name
+                FROM information_schema.tables
+                WHERE table_schema = 'public'
+                AND table_name IN (
+                    'users',
+                    'shops',
+                    'customers',
+                    'transactions',
+                    'customer_behaviour',
+                    'notifications'
+                )
+                ORDER BY table_name;
+            """)
+        )
+
+        tables = result.scalars().all()
+
+        expected_tables = {
+            "users",
+            "shops",
+            "customers",
+            "transactions",
+            "customer_behaviour",
+            "notifications"
+        }
+
+        return {
+            "status": "success",
+            "tables_found": tables,
+            "count": len(tables),
+            "all_tables_created": expected_tables.issubset(set(tables))
+        }
+
+
+
 @app.on_event("shutdown")
 async def shutdown():
     await engine.dispose()
