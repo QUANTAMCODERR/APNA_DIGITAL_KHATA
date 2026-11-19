@@ -9,6 +9,7 @@ from app.api.shop import router as shop_router
 from app.api.customer import router as customer_router
 from app.api.transaction import router as transaction_router
 from app.api.notification import router as notification_router
+from app.api.dashboard import router as dashboard_router
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -44,6 +45,10 @@ app.include_router(
     prefix=settings.API_V1_PREFIX
 )
 
+app.include_router(
+    dashboard_router,
+    prefix=settings.API_V1_PREFIX
+)
 
 @app.get("/")
 async def root():
