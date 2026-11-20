@@ -4,8 +4,16 @@ import asyncio
 from alembic import context
 
 from app.core.database import Base, engine
-from app.models import User, Shop, BusinessCategory
-
+from app.models import (
+    User,
+    Shop,
+    BusinessCategory,
+    Customer,
+    Transaction,
+    CustomerBehaviour,
+    Notification,
+    Repayment
+)
 
 # Alembic configuration
 config = context.config

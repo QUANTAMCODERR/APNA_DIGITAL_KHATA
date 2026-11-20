@@ -8,6 +8,7 @@ from app.models.transaction import (
     TransactionSource
 )
 from app.models.customer_behaviour import CustomerBehaviour
+from app.models.repayment import Repayment
 from app.models.notification import (
     Notification,
     NotificationType,
@@ -25,5 +26,6 @@ __all__ = [
     "TransactionType",
     "TransactionSource",
     "NotificationType",
-    "NotificationStatus"
+    "NotificationStatus",
+    "Repayment",
 ]

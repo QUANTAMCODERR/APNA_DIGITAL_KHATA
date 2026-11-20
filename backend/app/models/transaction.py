@@ -3,7 +3,6 @@ import uuid
 import enum
 from datetime import datetime
 from decimal import Decimal
-
 from sqlalchemy import (
     DateTime,
     String,
@@ -11,6 +10,7 @@ from sqlalchemy import (
     ForeignKey,
     Enum,
     Numeric,
+    Boolean,
     func
 )
 from sqlalchemy.dialects.postgresql import UUID
@@ -64,6 +64,17 @@ class Transaction(Base):
         Enum(TransactionSource, name="transaction_source"),
         default=TransactionSource.MANUAL,
         nullable=False
+    )
+
+    due_date: Mapped[datetime | None] = mapped_column(
+    DateTime(timezone=True),
+    nullable=True
+    )
+    
+    allocation_processed: Mapped[bool] = mapped_column(
+    Boolean,
+    default=False,
+    nullable=False
     )
 
     transaction_date: Mapped[datetime] = mapped_column(

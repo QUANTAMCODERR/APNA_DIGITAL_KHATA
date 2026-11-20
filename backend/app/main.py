@@ -10,6 +10,7 @@ from app.api.customer import router as customer_router
 from app.api.transaction import router as transaction_router
 from app.api.notification import router as notification_router
 from app.api.dashboard import router as dashboard_router
+from app.api.credit_risk import router as credit_risk_router
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -47,6 +48,11 @@ app.include_router(
 
 app.include_router(
     dashboard_router,
+    prefix=settings.API_V1_PREFIX
+)
+
+app.include_router(
+    credit_risk_router,
     prefix=settings.API_V1_PREFIX
 )
 
@@ -93,13 +99,14 @@ async def verify_database_tables():
                 FROM information_schema.tables
                 WHERE table_schema = 'public'
                 AND table_name IN (
-                    'users',
-                    'shops',
-                    'customers',
-                    'transactions',
-                    'customer_behaviour',
-                    'notifications'
-                )
+                'users',
+                'shops',
+                'customers',
+                'transactions',
+                'customer_behaviour',
+                'notifications',
+                'repayments'
+             )
                 ORDER BY table_name;
             """)
         )
@@ -107,13 +114,14 @@ async def verify_database_tables():
         tables = result.scalars().all()
 
         expected_tables = {
-            "users",
-            "shops",
-            "customers",
-            "transactions",
-            "customer_behaviour",
-            "notifications"
-        }
+        "users",
+        "shops",
+        "customers",
+        "transactions",
+        "customer_behaviour",
+        "notifications",
+        "repayments"
+    }
 
         return {
             "status": "success",

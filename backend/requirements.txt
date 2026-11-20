@@ -7,3 +7,6 @@ alembic
 pwdlib[argon2]
 PyJWT
 email-validator
+scikit-learn
+pandas
+numpy

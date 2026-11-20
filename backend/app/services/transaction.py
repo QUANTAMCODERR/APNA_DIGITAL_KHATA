@@ -20,6 +20,7 @@ from app.models.notification import (
 )
 from app.schemas.transaction import TransactionCreate
 from decimal import Decimal
+from app.services.repayment import allocate_payment_to_credits
 
 
 async def create_transaction(
@@ -54,6 +55,7 @@ async def create_transaction(
         raise ValueError("Customer not found in your shop")
 
     # Create transaction
+    
     new_transaction = Transaction(
         customer_id=customer.id,
         transaction_type=transaction_data.transaction_type,
@@ -63,8 +65,10 @@ async def create_transaction(
             if transaction_data.description
             else None
         ),
-        source=TransactionSource.MANUAL
+        source=TransactionSource.MANUAL,
+        due_date=transaction_data.due_date
     )
+
 
     try:
         db.add(new_transaction)
@@ -120,6 +124,13 @@ async def create_transaction(
 
         # Generate transaction ID before creating notification
         await db.flush()
+        # Automatically allocate payments to outstanding credits
+        if transaction_data.transaction_type == TransactionType.PAYMENT:
+
+            await allocate_payment_to_credits(
+        payment_transaction=new_transaction,
+        db=db
+        )
 
         # Create pending notification record
         notification = Notification(
