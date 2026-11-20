@@ -1,8 +1,10 @@
 
 from decimal import Decimal
+from uuid import UUID
 
 from sqlalchemy import select, func, case, desc
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import IntegrityError
 
 from app.models.customer import Customer
 from app.models.shop import Shop
@@ -19,58 +21,113 @@ from app.models.notification import (
     NotificationStatus
 )
 from app.schemas.transaction import TransactionCreate
-from decimal import Decimal
 from app.services.repayment import allocate_payment_to_credits
+
+
+
+
+def validate_idempotent_payload(
+    existing_transaction: Transaction,
+    transaction_data: TransactionCreate,
+    source: TransactionSource
+) -> None:
+
+    normalized_description = (
+        transaction_data.description.strip()
+        if transaction_data.description
+        else None
+    )
+
+    if (
+        existing_transaction.customer_id != transaction_data.customer_id
+        or existing_transaction.transaction_type != transaction_data.transaction_type
+        or existing_transaction.amount != transaction_data.amount
+        or existing_transaction.description != normalized_description
+        or existing_transaction.due_date != transaction_data.due_date
+        or existing_transaction.source != source
+    ):
+        raise ValueError(
+            "Confirmation ID has already been used with different transaction details."
+        )
+
 
 
 async def create_transaction(
     transaction_data: TransactionCreate,
     current_user: User,
-    db: AsyncSession
+    db: AsyncSession,
+    source: TransactionSource = TransactionSource.MANUAL,
+    idempotency_key: UUID | None = None
 ) -> Transaction:
 
-    # Find the logged-in user's shop
-    result = await db.execute(
-        select(Shop).where(
-            Shop.owner_id == current_user.id
-        )
-    )
-
-    shop = result.scalar_one_or_none()
-
-    if shop is None:
-        raise ValueError("Please register your shop first")
-
-    # Verify that the customer belongs to this shop
-    result = await db.execute(
-        select(Customer).where(
-            Customer.id == transaction_data.customer_id,
-            Customer.shop_id == shop.id
-        )
-    )
-
-    customer = result.scalar_one_or_none()
-
-    if customer is None:
-        raise ValueError("Customer not found in your shop")
-
-    # Create transaction
-    
-    new_transaction = Transaction(
-        customer_id=customer.id,
-        transaction_type=transaction_data.transaction_type,
-        amount=transaction_data.amount,
-        description=(
-            transaction_data.description.strip()
-            if transaction_data.description
-            else None
-        ),
-        source=TransactionSource.MANUAL,
-        due_date=transaction_data.due_date
-    )
-
-
     try:
+        # Find the logged-in user's shop
+        result = await db.execute(
+            select(Shop).where(
+                Shop.owner_id == current_user.id
+            )
+        )
+
+        shop = result.scalar_one_or_none()
+
+        if shop is None:
+            raise ValueError("Please register your shop first")
+
+        # Check whether this confirmation was already processed
+        if idempotency_key is not None:
+
+            result = await db.execute(
+                select(Transaction)
+                .join(
+                    Customer,
+                    Transaction.customer_id == Customer.id
+                )
+                .where(
+                    Transaction.idempotency_key == idempotency_key,
+                    Customer.shop_id == shop.id
+                )
+            )
+
+            existing_transaction = result.scalar_one_or_none()
+
+            if existing_transaction is not None:
+
+                validate_idempotent_payload(
+                    existing_transaction=existing_transaction,
+                    transaction_data=transaction_data,
+                    source=source
+                )
+
+                return existing_transaction
+
+        # Verify that the customer belongs to this shop
+        result = await db.execute(
+            select(Customer).where(
+                Customer.id == transaction_data.customer_id,
+                Customer.shop_id == shop.id
+            )
+        )
+
+        customer = result.scalar_one_or_none()
+
+        if customer is None:
+            raise ValueError("Customer not found in your shop")
+
+        # Create transaction
+        new_transaction = Transaction(
+            customer_id=customer.id,
+            transaction_type=transaction_data.transaction_type,
+            amount=transaction_data.amount,
+            description=(
+                transaction_data.description.strip()
+                if transaction_data.description
+                else None
+            ),
+            source=source,
+            due_date=transaction_data.due_date,
+            idempotency_key=idempotency_key
+        )
+
         db.add(new_transaction)
 
         # Find existing customer behaviour record
@@ -122,15 +179,16 @@ async def create_transaction(
                 "has been received successfully."
             )
 
-        # Generate transaction ID before creating notification
+        # Generate transaction ID
         await db.flush()
+
         # Automatically allocate payments to outstanding credits
         if transaction_data.transaction_type == TransactionType.PAYMENT:
 
             await allocate_payment_to_credits(
-        payment_transaction=new_transaction,
-        db=db
-        )
+                payment_transaction=new_transaction,
+                db=db
+            )
 
         # Create pending notification record
         notification = Notification(
@@ -148,6 +206,43 @@ async def create_transaction(
         await db.refresh(new_transaction)
 
         return new_transaction
+
+    except IntegrityError:
+        await db.rollback()
+
+        # Handle concurrent duplicate confirmation requests
+        if idempotency_key is not None:
+
+            result = await db.execute(
+                select(Transaction)
+                .join(
+                    Customer,
+                    Transaction.customer_id == Customer.id
+                )
+                .join(
+                    Shop,
+                    Customer.shop_id == Shop.id
+                )
+                .where(
+                    Transaction.idempotency_key == idempotency_key,
+                    Shop.owner_id == current_user.id
+                )
+            )
+
+
+            existing_transaction = result.scalar_one_or_none()
+
+            if existing_transaction is not None:
+
+                validate_idempotent_payload(
+                    existing_transaction=existing_transaction,
+                    transaction_data=transaction_data,
+                    source=source
+                )
+
+                return existing_transaction
+
+        raise
 
     except Exception:
         await db.rollback()

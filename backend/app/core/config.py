@@ -11,6 +11,9 @@ class Settings(BaseSettings):
     API_V1_PREFIX: str = "/api/v1"
 
     DATABASE_URL: str
+    GROQ_API_KEY: str
+    GROQ_STT_MODEL: str = "whisper-large-v3-turbo"
+    GROQ_CHAT_MODEL: str = "openai/gpt-oss-20b"
 
     JWT_SECRET_KEY: str
     JWT_ALGORITHM: str = "HS256"

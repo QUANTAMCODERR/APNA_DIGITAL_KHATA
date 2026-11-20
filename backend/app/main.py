@@ -11,6 +11,9 @@ from app.api.transaction import router as transaction_router
 from app.api.notification import router as notification_router
 from app.api.dashboard import router as dashboard_router
 from app.api.credit_risk import router as credit_risk_router
+from app.api.voice import router as voice_router
+
+
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -53,6 +56,11 @@ app.include_router(
 
 app.include_router(
     credit_risk_router,
+    prefix=settings.API_V1_PREFIX
+)
+
+app.include_router(
+    voice_router,
     prefix=settings.API_V1_PREFIX
 )
 

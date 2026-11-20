@@ -17,8 +17,8 @@ from app.models.transaction import (
 
 
 class TransactionCreate(BaseModel):
+    confirmation_id: UUID
     customer_id: UUID
-
     transaction_type: TransactionType
 
     amount: Decimal = Field(

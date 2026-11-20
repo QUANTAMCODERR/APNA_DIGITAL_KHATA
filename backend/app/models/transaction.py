@@ -38,6 +38,12 @@ class Transaction(Base):
         default=uuid.uuid4
     )
 
+    idempotency_key: Mapped[uuid.UUID | None] = mapped_column(
+    UUID(as_uuid=True),
+    unique=True,
+    nullable=True
+    )
+
     customer_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("customers.id", ondelete="CASCADE"),
@@ -70,7 +76,7 @@ class Transaction(Base):
     DateTime(timezone=True),
     nullable=True
     )
-    
+
     allocation_processed: Mapped[bool] = mapped_column(
     Boolean,
     default=False,
