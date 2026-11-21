@@ -16,8 +16,8 @@ from app.models.transaction import (
 )
 
 
+
 class TransactionCreate(BaseModel):
-    confirmation_id: UUID
     customer_id: UUID
     transaction_type: TransactionType
 
@@ -28,12 +28,10 @@ class TransactionCreate(BaseModel):
     )
 
     description: str | None = None
-
     due_date: datetime | None = None
 
     @model_validator(mode="after")
     def validate_due_date(self):
-
         if (
             self.transaction_type == TransactionType.PAYMENT
             and self.due_date is not None
@@ -43,6 +41,10 @@ class TransactionCreate(BaseModel):
             )
 
         return self
+
+
+class VoiceTransactionCreate(TransactionCreate):
+    confirmation_id: UUID
 
 
 class TransactionResponse(BaseModel):

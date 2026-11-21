@@ -12,6 +12,7 @@ from app.api.notification import router as notification_router
 from app.api.dashboard import router as dashboard_router
 from app.api.credit_risk import router as credit_risk_router
 from app.api.voice import router as voice_router
+from fastapi.middleware.cors import CORSMiddleware
 
 
 
@@ -22,6 +23,16 @@ app = FastAPI(
     debug=settings.DEBUG
 )
 
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(
     auth_router,

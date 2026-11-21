@@ -19,7 +19,7 @@ from app.api.deps import get_current_user
 from app.core.database import get_db
 from app.models.user import User
 from app.models.transaction import TransactionSource
-from app.schemas.transaction import TransactionCreate, TransactionResponse
+from app.schemas.transaction import VoiceTransactionCreate, TransactionResponse
 from app.schemas.voice import VoiceTransactionConfirm
 from app.services.transaction import create_transaction
 
@@ -230,7 +230,7 @@ async def confirm_voice_transaction(
 ):
     try:
         # Convert confirmed user input into existing transaction schema
-        transaction_data = TransactionCreate(
+        transaction_data = VoiceTransactionCreate(
             **payload.model_dump()
         )
 
