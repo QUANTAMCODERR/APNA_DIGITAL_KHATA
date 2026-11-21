@@ -1,5 +1,6 @@
 
 from uuid import UUID
+from decimal import Decimal
 
 from sqlalchemy import select, desc
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -8,10 +9,10 @@ from app.models.customer import Customer
 from app.models.shop import Shop
 from app.models.transaction import Transaction
 from app.models.user import User
-from app.ml.features import extract_customer_features
-from decimal import Decimal
 
+from app.ml.features import extract_customer_features
 from app.ml.risk_assessment import assess_customer_risk
+
 from app.schemas.credit_risk import (
     CreditRiskResponse,
     CreditRiskLevel
@@ -58,8 +59,6 @@ async def get_customer_ml_features(
     return features
 
 
-
-
 async def analyze_customer_credit_risk(
     customer_id: UUID,
     current_user: User,
@@ -93,6 +92,7 @@ async def analyze_customer_credit_risk(
         outstanding_balance=Decimal(
             str(features["outstanding_balance"])
         ),
+        repayment_ratio=features["repayment_ratio"],
         explanation=assessment["explanation"],
         recommendation=assessment["recommendation"]
     )

@@ -15,6 +15,8 @@ import {
 
 import type { CustomerResponse } from "@/features/customers/types";
 
+import CreditRiskCard from "@/features/credit-risk/components/credit-risk-card";
+
 import type {
   CustomerBalance,
   TransactionResponse,
@@ -48,6 +50,9 @@ function CustomerDetailsContent() {
   const [error, setError] = useState("");
   const [showTransactionForm, setShowTransactionForm] = useState(false);
   const [showVoiceAssistant, setShowVoiceAssistant] = useState(false);
+
+  // Trigger credit risk reassessment after every successful transaction
+  const [creditRiskRefreshKey, setCreditRiskRefreshKey] = useState(0);
 
   const loadCustomerDetails = useCallback(async () => {
     if (!token) return;
@@ -91,8 +96,14 @@ function CustomerDetailsContent() {
   function handleTransactionCreated(
     _transaction: TransactionResponse
   ) {
+    // Close manual transaction form
     setShowTransactionForm(false);
+
+    // Refresh customer balance and transaction history
     loadCustomerDetails();
+
+    // Trigger fresh credit risk assessment
+    setCreditRiskRefreshKey((previous) => previous + 1);
   }
 
   if (authLoading || loading) {
@@ -169,6 +180,7 @@ function CustomerDetailsContent() {
           </button>
         </header>
 
+        {/* Outstanding Balance */}
         <section className="mb-6 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
           <p className="text-sm font-medium text-gray-500">
             Outstanding Balance
@@ -182,6 +194,12 @@ function CustomerDetailsContent() {
             Current amount owed by this customer.
           </p>
         </section>
+
+        {/* Credit Risk Assessment */}
+        <CreditRiskCard
+          customerId={customerId}
+          refreshKey={creditRiskRefreshKey}
+        />
 
         {/* Voice Transaction Assistant */}
         <section className="mb-8 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
@@ -209,14 +227,14 @@ function CustomerDetailsContent() {
             </button>
           </div>
 
-         {showVoiceAssistant && (
+          {showVoiceAssistant && (
             <div className="mt-5">
-                <VoiceTransactionAssistant
-                    customerId={customerId}
-                    onCreated={handleTransactionCreated}
-                />
+              <VoiceTransactionAssistant
+                customerId={customerId}
+                onCreated={handleTransactionCreated}
+              />
             </div>
-            )}
+          )}
         </section>
 
         {/* Manual Transaction Form */}

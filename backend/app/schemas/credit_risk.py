@@ -28,6 +28,8 @@ class CreditRiskResponse(BaseModel):
 
     outstanding_balance: Decimal
 
+    repayment_ratio: float
+
     explanation: list[str]
 
     recommendation: str
