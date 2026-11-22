@@ -40,3 +40,24 @@ async def get_customer_notifications(
     )
 
     return result.scalars().all()
+
+
+
+
+async def get_shop_notifications(
+    current_user: User,
+    db: AsyncSession,
+    skip: int = 0,
+    limit: int = 50
+):
+    result = await db.execute(
+        select(Notification)
+        .join(Customer, Notification.customer_id == Customer.id)
+        .join(Shop, Customer.shop_id == Shop.id)
+        .where(Shop.owner_id == current_user.id)
+        .order_by(desc(Notification.created_at))
+        .offset(skip)
+        .limit(limit)
+    )
+
+    return result.scalars().all()

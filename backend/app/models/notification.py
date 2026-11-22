@@ -1,14 +1,17 @@
 
 import uuid
 import enum
-from datetime import datetime
+from datetime import datetime, date
 
 from sqlalchemy import (
     DateTime,
-    String,
+    Date,
     Text,
     ForeignKey,
     Enum,
+    Index,
+    CheckConstraint,
+    text,
     func
 )
 from sqlalchemy.dialects.postgresql import UUID
@@ -21,6 +24,7 @@ class NotificationType(str, enum.Enum):
     CREDIT_ADDED = "credit_added"
     PAYMENT_RECEIVED = "payment_received"
     BALANCE_UPDATED = "balance_updated"
+    PAYMENT_REMINDER = "payment_reminder"
 
 
 class NotificationStatus(str, enum.Enum):
@@ -31,6 +35,28 @@ class NotificationStatus(str, enum.Enum):
 
 class Notification(Base):
     __tablename__ = "notifications"
+
+    __table_args__ = (
+        CheckConstraint(
+            """
+            notification_type != 'PAYMENT_REMINDER'
+            OR (
+                transaction_id IS NOT NULL
+                AND reminder_date IS NOT NULL
+            )
+            """,
+            name="ck_payment_reminder_required_fields"
+        ),
+        Index(
+            "uq_transaction_reminder_date",
+            "transaction_id",
+            "reminder_date",
+            unique=True,
+            postgresql_where=text(
+                "notification_type = 'PAYMENT_REMINDER'"
+            )
+        ),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
@@ -54,6 +80,11 @@ class Notification(Base):
     notification_type: Mapped[NotificationType] = mapped_column(
         Enum(NotificationType, name="notification_type"),
         nullable=False
+    )
+
+    reminder_date: Mapped[date | None] = mapped_column(
+        Date,
+        nullable=True
     )
 
     message: Mapped[str] = mapped_column(

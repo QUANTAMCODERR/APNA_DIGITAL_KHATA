@@ -102,12 +102,21 @@ export default function DashboardPage() {
               </p>
             </div>
 
-            <Link
-              href="/customers"
-              className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
-            >
-              Manage Customers
-            </Link>
+            <div className="flex flex-wrap items-center gap-3">
+              <Link
+                href="/notifications"
+                className="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+              >
+                Notifications
+              </Link>
+
+              <Link
+                href="/customers"
+                className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
+              >
+                Manage Customers
+              </Link>
+            </div>
           </div>
         </header>
 
