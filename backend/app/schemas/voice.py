@@ -14,6 +14,17 @@ from pydantic import (
 from app.models.transaction import TransactionType
 
 
+
+class TextTransactionRequest(BaseModel):
+    message: str = Field(
+        min_length=1,
+        max_length=2000
+    )
+
+    model_config = ConfigDict(extra="forbid")
+
+
+
 class VoiceTransactionExtraction(BaseModel):
 
     customer_name: str | None = Field(

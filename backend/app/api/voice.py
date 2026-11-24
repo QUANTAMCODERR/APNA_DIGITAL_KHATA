@@ -7,28 +7,39 @@ from fastapi import (
     File,
     HTTPException,
     status,
-    Depends
+    Depends,
 )
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from app.services.speech_to_text import transcribe_audio
-from app.services.voice_extraction import extract_transaction_details
-from app.services.customer_matching import match_customer
 
 from app.api.deps import get_current_user
 from app.core.database import get_db
 from app.models.user import User
+from app.models.customer import Customer
+from app.models.shop import Shop
 from app.models.transaction import TransactionSource
-from app.schemas.transaction import VoiceTransactionCreate, TransactionResponse
-from app.schemas.voice import VoiceTransactionConfirm
+
+from app.schemas.transaction import (
+    VoiceTransactionCreate,
+    TransactionResponse,
+)
+from app.schemas.voice import (
+    VoiceTransactionConfirm,
+    TextTransactionRequest,
+)
+
+from app.services.speech_to_text import transcribe_audio
+from app.services.voice_extraction import extract_transaction_details
+from app.services.customer_matching import match_customer
 from app.services.transaction import create_transaction
+
 
 logger = logging.getLogger(__name__)
 
 
 router = APIRouter(
     prefix="/voice",
-    tags=["Voice Transactions"]
+    tags=["Voice Transactions"],
 )
 
 
@@ -39,7 +50,7 @@ ALLOWED_CONTENT_TYPES = {
     "audio/mp4",
     "audio/ogg",
     "audio/x-wav",
-    "audio/mp3"
+    "audio/mp3",
 }
 
 MAX_AUDIO_SIZE = 25 * 1024 * 1024
@@ -53,7 +64,7 @@ def get_audio_filename(audio: UploadFile) -> str:
         "audio/mpeg": "mp3",
         "audio/mp3": "mp3",
         "audio/mp4": "mp4",
-        "audio/ogg": "ogg"
+        "audio/ogg": "ogg",
     }
 
     extension = extension_map.get(audio.content_type)
@@ -61,7 +72,7 @@ def get_audio_filename(audio: UploadFile) -> str:
     if not extension:
         raise HTTPException(
             status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-            detail="Unsupported audio format."
+            detail="Unsupported audio format.",
         )
 
     return f"recording.{extension}"
@@ -72,7 +83,7 @@ async def validate_audio(audio: UploadFile) -> bytes:
     if audio.content_type not in ALLOWED_CONTENT_TYPES:
         raise HTTPException(
             status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-            detail="Unsupported audio format."
+            detail="Unsupported audio format.",
         )
 
     audio_bytes = await audio.read()
@@ -80,13 +91,13 @@ async def validate_audio(audio: UploadFile) -> bytes:
     if not audio_bytes:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Audio file is empty."
+            detail="Audio file is empty.",
         )
 
     if len(audio_bytes) > MAX_AUDIO_SIZE:
         raise HTTPException(
             status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-            detail="Audio file exceeds the 25 MB limit."
+            detail="Audio file exceeds the 25 MB limit.",
         )
 
     return audio_bytes
@@ -95,7 +106,7 @@ async def validate_audio(audio: UploadFile) -> bytes:
 @router.post("/transcribe")
 async def transcribe_voice(
     audio: UploadFile = File(...),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     audio_bytes = await validate_audio(audio)
     filename = get_audio_filename(audio)
@@ -103,19 +114,19 @@ async def transcribe_voice(
     try:
         text = await transcribe_audio(
             audio_bytes=audio_bytes,
-            filename=filename
+            filename=filename,
         )
 
         return {
             "status": "success",
             "transcribed_text": text,
-            "language": "auto-detected"
+            "language": "auto-detected",
         }
 
     except ValueError as error:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(error)
+            detail=str(error),
         )
 
     except Exception:
@@ -123,35 +134,44 @@ async def transcribe_voice(
 
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
-            detail="Speech transcription service is temporarily unavailable."
+            detail="Speech transcription service is temporarily unavailable.",
         )
-
 
 
 @router.post("/prepare-transaction")
 async def prepare_voice_transaction(
     audio: UploadFile = File(...),
     current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     audio_bytes = await validate_audio(audio)
     filename = get_audio_filename(audio)
 
     try:
-        # Step 1: Audio to text
-        transcribed_text = await transcribe_audio(
-            audio_bytes=audio_bytes,
-            filename=filename
+        # Step 1: Fetch existing customer names from this shop.
+        customer_result = await db.execute(
+            select(Customer.full_name)
+            .join(Shop, Customer.shop_id == Shop.id)
+            .where(Shop.owner_id == current_user.id)
         )
 
-        # Step 2: Extract transaction details
+        customer_names = customer_result.scalars().all()
+
+        # Step 2: Convert audio to text with customer-name context.
+        transcribed_text = await transcribe_audio(
+            audio_bytes=audio_bytes,
+            filename=filename,
+            customer_names=customer_names,
+        )
+
+        # Step 3: Extract transaction details.
         extracted_data = await extract_transaction_details(
             transcribed_text=transcribed_text
         )
 
         extracted_transaction = extracted_data.model_dump(mode="json")
 
-        # Step 3: Identify missing information
+        # Step 4: Identify missing transaction information.
         missing_fields = []
 
         if not extracted_data.customer_name:
@@ -163,49 +183,60 @@ async def prepare_voice_transaction(
         if not extracted_data.transaction_type:
             missing_fields.append("transaction_type")
 
-        # Step 4: Incomplete extraction needs user review
+        # Step 5: Match customer whenever a name is available.
+        # Missing amount/type must NOT prevent customer matching.
+        customer_match = None
+
+        logger.info(
+            "Extracted customer name from voice: %r",
+            extracted_data.customer_name,
+        )
+
+        if extracted_data.customer_name:
+            customer_match_result = await match_customer(
+                customer_name=extracted_data.customer_name,
+                current_user=current_user,
+                db=db,
+            )
+
+            customer_match = customer_match_result.model_dump(mode="json")
+
+        # Step 6: Return for review if transaction information is incomplete.
         if missing_fields:
             return {
                 "status": "needs_review",
                 "transcribed_text": transcribed_text,
                 "extracted_transaction": extracted_transaction,
-                "customer_match": None,
+                "customer_match": customer_match,
                 "missing_fields": missing_fields,
-                "requires_confirmation": False
+                "requires_confirmation": False,
             }
 
-        # Step 5: Match customer in authenticated user's shop
-        customer_match = await match_customer(
-            customer_name=extracted_data.customer_name,
-            current_user=current_user,
-            db=db
-        )
-
-        # Step 6: Require review if customer is not uniquely matched
-        if customer_match.status != "matched":
+        # Step 7: Require review if customer is not uniquely matched.
+        if customer_match is None or customer_match["status"] != "matched":
             return {
                 "status": "needs_review",
                 "transcribed_text": transcribed_text,
                 "extracted_transaction": extracted_transaction,
-                "customer_match": customer_match.model_dump(mode="json"),
+                "customer_match": customer_match,
                 "missing_fields": [],
-                "requires_confirmation": False
+                "requires_confirmation": False,
             }
 
-        # Step 7: Return transaction preview
+        # Step 8: Return transaction preview.
         return {
             "status": "preview_ready",
             "transcribed_text": transcribed_text,
             "extracted_transaction": extracted_transaction,
-            "customer_match": customer_match.model_dump(mode="json"),
+            "customer_match": customer_match,
             "missing_fields": [],
-            "requires_confirmation": True
+            "requires_confirmation": True,
         }
 
     except ValueError as error:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=str(error)
+            detail=str(error),
         )
 
     except Exception:
@@ -213,34 +244,126 @@ async def prepare_voice_transaction(
 
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
-            detail="Voice transaction processing is temporarily unavailable."
+            detail="Voice transaction processing is temporarily unavailable.",
         )
 
+
+@router.post("/prepare-text-transaction")
+async def prepare_text_transaction(
+    payload: TextTransactionRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    message = payload.message.strip()
+
+    if not message:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Message cannot be empty.",
+        )
+
+    try:
+        # Step 1: Extract transaction details directly from text.
+        extracted_data = await extract_transaction_details(
+            transcribed_text=message
+        )
+
+        extracted_transaction = extracted_data.model_dump(mode="json")
+
+        # Step 2: Identify missing information.
+        missing_fields = []
+
+        if not extracted_data.customer_name:
+            missing_fields.append("customer_name")
+
+        if extracted_data.amount is None:
+            missing_fields.append("amount")
+
+        if not extracted_data.transaction_type:
+            missing_fields.append("transaction_type")
+
+        # Step 3: Return for review if information is incomplete.
+        if missing_fields:
+            return {
+                "status": "needs_review",
+                "transcribed_text": message,
+                "extracted_transaction": extracted_transaction,
+                "customer_match": None,
+                "missing_fields": missing_fields,
+                "requires_confirmation": False,
+            }
+
+        logger.info(
+            "Extracted customer name from text: %r",
+            extracted_data.customer_name,
+        )
+
+        # Step 4: Match customer within authenticated shop.
+        customer_match = await match_customer(
+            customer_name=extracted_data.customer_name,
+            current_user=current_user,
+            db=db,
+        )
+
+        # Step 5: Require manual review if customer is ambiguous or missing.
+        if customer_match.status != "matched":
+            return {
+                "status": "needs_review",
+                "transcribed_text": message,
+                "extracted_transaction": extracted_transaction,
+                "customer_match": customer_match.model_dump(mode="json"),
+                "missing_fields": [],
+                "requires_confirmation": False,
+            }
+
+        # Step 6: Return transaction preview.
+        return {
+            "status": "preview_ready",
+            "transcribed_text": message,
+            "extracted_transaction": extracted_transaction,
+            "customer_match": customer_match.model_dump(mode="json"),
+            "missing_fields": [],
+            "requires_confirmation": True,
+        }
+
+    except ValueError as error:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(error),
+        )
+
+    except Exception:
+        logger.exception("Text transaction processing failed")
+
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="Text transaction processing is temporarily unavailable.",
+        )
 
 
 @router.post(
     "/confirm-transaction",
     response_model=TransactionResponse,
-    status_code=status.HTTP_201_CREATED
+    status_code=status.HTTP_201_CREATED,
 )
 async def confirm_voice_transaction(
     payload: VoiceTransactionConfirm,
     current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     try:
-        # Convert confirmed user input into existing transaction schema
+        # Convert confirmed user input into existing transaction schema.
         transaction_data = VoiceTransactionCreate(
             **payload.model_dump()
         )
 
-        # Save transaction using existing business logic
+        # Save transaction using existing business logic.
         transaction = await create_transaction(
             transaction_data=transaction_data,
             current_user=current_user,
             db=db,
             source=TransactionSource.VOICE,
-            idempotency_key=payload.confirmation_id
+            idempotency_key=payload.confirmation_id,
         )
 
         return transaction
@@ -251,12 +374,12 @@ async def confirm_voice_transaction(
         if "Customer not found" in error_message:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=error_message
+                detail=error_message,
             )
 
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=error_message
+            detail=error_message,
         )
 
     except Exception:
@@ -264,5 +387,5 @@ async def confirm_voice_transaction(
 
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Unable to save voice transaction."
+            detail="Unable to save voice transaction.",
         )
