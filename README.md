@@ -1,3309 +1,4409 @@
-# 1. Project Setup and Architecture
+# Universal Digital Khata — Technical Documentation
 
-## 1.1 Introduction
+# Module 1: Project Initialization & Architecture
 
-Universal Digital Khata is a digital ledger application designed to help small shop owners manage their daily credit transactions and customer records.
+## 1.1 Overview
 
-In traditional shops, business owners often maintain customer credit records in physical notebooks. This method can become difficult when the number of customers and transactions increases.
+Universal Digital Khata is a digital ledger management platform designed to help small businesses and shopkeepers manage their customers, credit transactions, repayments, and business activities digitally.
 
-Our goal is to build a digital solution that makes this process easier, faster, and more organized.
+The project follows a frontend-backend architecture:
 
-Before implementing the main features, we created a proper project structure by separating the frontend and backend.
+- **Frontend:** Next.js, React, TypeScript and Tailwind CSS.
+- **Backend:** Python and FastAPI.
+- **Database:** Neon PostgreSQL.
+- **ORM:** SQLAlchemy with asynchronous database operations.
+- **Database Migrations:** Alembic.
+- **Authentication:** JWT-based authentication.
+- **AI Integration:** Groq APIs for AI-powered features.
 
-## 1.2 Why Did We Create This Project?
+The application is structured to keep frontend presentation, backend business logic, database operations, and AI processing separate.
 
-Traditional shopkeepers face several problems while managing customer credit:
+## 1.2 Why This Architecture?
 
-- Maintaining customer records manually takes time.
-- Finding previous transactions can be difficult.
-- Calculating pending amounts manually can lead to mistakes.
-- Managing multiple customers in a notebook becomes complicated.
-- Shop owners cannot easily access their business records digitally.
+A separate frontend and backend architecture provides several advantages:
 
-We decided to build Universal Digital Khata to solve these problems through a simple digital platform.
+1. **Separation of concerns:** Frontend handles user interaction, while backend manages business logic and data processing.
+2. **Scalability:** Frontend and backend can be deployed independently.
+3. **Maintainability:** Features are organized into dedicated modules.
+4. **API-based communication:** The frontend communicates with backend services through REST APIs.
+5. **Future extensibility:** Additional AI features and mobile applications can reuse backend APIs.
 
-## 1.3 Technology Stack
+## 1.3 Project Structure
 
-We selected different technologies for the frontend and backend based on their responsibilities.
+The project follows this structure:
+
+```text
+universal-digital-khata/
+│
+├── backend/
+│   ├── app/
+│   │   ├── api/
+│   │   ├── core/
+│   │   ├── jobs/
+│   │   ├── ml/
+│   │   ├── models/
+│   │   ├── schemas/
+│   │   ├── services/
+│   │   └── main.py
+│   │
+│   ├── migrations/
+│   │   └── versions/
+│   │
+│   ├── .env.example
+│   ├── alembic.ini
+│   └── requirements.txt
+│
+├── frontend/
+│   ├── src/
+│   │   ├── app/
+│   │   ├── features/
+│   │   └── lib/
+│   │
+│   └── package.json
+│
+├── .gitignore
+└── README.md
+```
+
+## 1.4 Frontend Initialization
+
+The frontend uses Next.js with the App Router architecture.
+
+Important dependencies include:
 
 | Technology | Purpose |
 |---|---|
-| Next.js | Building the frontend application |
-| TypeScript | Writing safer and more maintainable frontend code |
-| Tailwind CSS | Styling the user interface |
-| Python | Backend programming language |
-| FastAPI | Building backend APIs |
-| Git | Tracking code changes |
-| GitHub | Hosting and managing the source code |
+| Next.js 16 | React-based frontend framework |
+| React 19 | Component-based UI development |
+| TypeScript | Static type checking |
+| Tailwind CSS 4 | UI styling |
+| IndexedDB (`idb`) | Browser-side offline data storage |
 
-The database and other integrations are explained in their respective modules.
+The frontend package configuration is maintained in:
 
-## 1.4 Frontend Setup – Next.js
+`frontend/package.json`
 
-The frontend is the part of the application that users interact with.
+Important scripts:
 
-We selected Next.js because it provides a structured React-based framework for building modern web applications.
-
-The frontend is responsible for:
-
-- Displaying application pages.
-- Providing forms and user input fields.
-- Showing customer and transaction information.
-- Displaying dashboard information.
-- Communicating with backend APIs.
-- Providing a responsive user experience.
-
-We use TypeScript to improve code reliability and make it easier to maintain the application.
-
-We use Tailwind CSS to create consistent layouts and responsive designs.
-
-### Why Next.js?
-
-Next.js provides a structured way to build React applications. It also supports features such as routing, server-side rendering, and optimized application delivery.
-
-For this project, it provides a strong foundation for building the frontend.
-
-## 1.5 Backend Setup – FastAPI
-
-The backend handles the application's business logic and data-related operations.
-
-We selected FastAPI as our Python backend framework.
-
-The backend is responsible for:
-
-- Receiving requests from the frontend.
-- Processing application logic.
-- Validating incoming data.
-- Communicating with the database.
-- Returning responses to the frontend.
-- Providing APIs for different application features.
-
-### Why FastAPI?
-
-We selected FastAPI for the following reasons:
-
-- It is built using Python.
-- It supports asynchronous programming.
-- It provides automatic API documentation.
-- It supports request and response validation.
-- It is suitable for building REST APIs.
-- Python also allows us to integrate AI and machine learning features.
-
-## 1.6 Frontend and Backend Separation
-
-We maintain separate frontend and backend applications.
-
-This separation makes the project easier to develop, test, debug, and maintain.
-
-The frontend focuses on the user interface, while the backend focuses on business logic and data processing.
-
-The frontend communicates with the backend through HTTP API requests.
-
-### Basic Architecture
-
-```text
-          USER
-            |
-            v
-    NEXT.JS FRONTEND
-    (TypeScript + Tailwind)
-            |
-            | HTTP API Requests
-            v
-      FASTAPI BACKEND
-          (Python)
-            |
-            v
-     BUSINESS LOGIC
-            |
-            v
-         DATABASE
+```json
+{
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  }
+}
 ```
 
-This is the high-level architecture of the application. Individual modules explain the database integration and business logic in detail.
+## 1.5 Backend Initialization
 
-## 1.7 Why Did We Separate Frontend and Backend?
+FastAPI is used to develop RESTful APIs.
 
-We separated the frontend and backend for several reasons:
+The backend dependencies are maintained in:
 
-**1. Better Code Organization**
+`backend/requirements.txt`
 
-Frontend and backend code are maintained independently. This keeps responsibilities clear.
+Important dependencies include:
 
-**2. Easy Maintenance**
+- fastapi[standard]
+- sqlalchemy
+- asyncpg
+- alembic
+- pydantic-settings
+- pwdlib[argon2]
+- PyJWT
+- groq
+- scikit-learn
+- pandas
+- numpy
 
-Changes in the user interface do not require rewriting backend business logic.
+## 1.6 FastAPI Application Configuration
 
-**3. Independent Development**
+**File:** `backend/app/main.py`
 
-Frontend and backend development can happen independently as long as their API contracts remain consistent.
+The FastAPI application is initialized using project settings.
 
-**4. Scalability**
+```python
+app = FastAPI(
+    title=settings.APP_NAME,
+    description="AI-powered Business Credit and Ledger Management System",
+    version="1.0.0",
+    debug=settings.DEBUG
+)
+```
 
-The frontend and backend can be deployed and scaled independently when required.
+The application registers different API routers:
 
-**5. AI Integration**
+- Authentication
+- Shop management
+- Customer management
+- Transactions
+- Notifications
+- Dashboard analytics
+- Credit risk
+- Voice transactions
 
-Using Python and FastAPI makes it easier to integrate AI and machine learning libraries and services into the backend.
+Each router uses the configured API version prefix.
 
-## 1.8 Git and GitHub Integration
+```python
+app.include_router(
+    auth_router,
+    prefix=settings.API_V1_PREFIX
+)
+```
 
-We use Git for version control and GitHub to host the project repository.
+The application also configures CORS middleware for frontend-backend communication.
 
-Git helps us track changes in the source code.
+## 1.7 Backend Health Endpoints
 
-GitHub provides a central place to maintain the project and its development history.
+The application provides basic health-check endpoints:
 
-We follow meaningful commit messages to describe individual development tasks.
+| Endpoint | Purpose |
+|---|---|
+| `/` | API welcome response |
+| `/health` | Backend health status |
+| `/health/db` | Database connectivity check |
+| `/health/db/tables` | Checks expected database tables |
 
-Examples:
+## 1.8 Module Summary
 
-- `chore: initialize Next.js and FastAPI project structure`
-- `feat: implement JWT authentication`
-- `feat: implement customer management APIs`
+In this module, the initial project structure was established using a separate Next.js frontend and FastAPI backend. Dependencies, application configuration, API router registration, CORS, and basic health-check endpoints were implemented.
 
-We also keep sensitive configuration values, such as API keys, outside committed example files.
+**Key learning:** Designing a modular full-stack application with a clear separation between frontend, backend, and database responsibilities.
 
-## 1.9 Benefits of the Initial Architecture
+---
 
-The initial project setup provides several benefits:
+# Module 2: Neon PostgreSQL Integration with Async SQLAlchemy
 
-- Clear separation between frontend and backend.
-- Easier development and debugging.
-- Better code organization.
-- Support for future AI and machine learning features.
-- Independent frontend and backend deployment.
-- Easier collaboration and version control.
-- A foundation for adding new application modules.
+## 2.1 Overview
 
-## 1.10 Final Summary
+Neon PostgreSQL is used as the primary relational database for Universal Digital Khata.
 
-In this module, we established the foundation of Universal Digital Khata.
+It stores application data such as:
 
-We selected Next.js, TypeScript, and Tailwind CSS for the frontend and Python with FastAPI for the backend.
-
-We also separated the frontend and backend responsibilities and integrated Git and GitHub for version control.
-
-This initial setup created the foundation on which we developed the database, authentication, customer management, transaction management, AI features, and other application modules.
-
-**The main objective of this module was to create a clean, maintainable, and scalable foundation for the complete application.**
-
-# 2. Neon PostgreSQL Database Integration
-
-## 2.1 Introduction
-
-Every application needs a database to store and manage its information.
-
-Universal Digital Khata needs to store important business information, such as:
-
-- Shop owner details
+- User accounts
 - Shop information
 - Customer records
 - Credit and payment transactions
-- Transaction history
-- Other application-related information
+- Customer behaviour
+- Notifications
+- Repayment records
 
-For this purpose, we integrated PostgreSQL as our primary relational database.
+SQLAlchemy is used as the ORM layer, while AsyncPG provides asynchronous PostgreSQL connectivity.
 
-We selected Neon as our PostgreSQL database hosting platform and SQLAlchemy as the database toolkit for communicating with the database from our FastAPI backend.
+## 2.2 Why Neon PostgreSQL?
 
-We also configured asynchronous database connectivity to support non-blocking database operations.
+A relational database is suitable for this application because its data contains multiple relationships.
 
-## 2.2 What is PostgreSQL?
+For example:
 
-PostgreSQL is an open-source relational database management system (RDBMS).
+- One user owns a shop.
+- A shop manages multiple customers.
+- A customer can have multiple transactions.
+- Transactions can be associated with repayment records.
 
-It stores information in tables containing rows and columns.
+PostgreSQL provides relational constraints, UUID support, indexing, and transaction management.
 
-For example, a customer table may contain:
+Neon provides a managed PostgreSQL database without requiring us to maintain our own database server.
 
-| ID | Customer Name | Mobile Number |
-|---|---|---|
-| 1 | Rahul | 9876543210 |
-| 2 | Amit | 9876543211 |
-| 3 | Priya | 9876543212 |
+## 2.3 Database Architecture
 
-Each row represents one customer, while each column represents a specific piece of information.
-
-PostgreSQL also supports relationships between tables, constraints, transactions, indexing, and complex queries.
-
-These features make it suitable for applications that manage structured business information.
-
-## 2.3 What is Neon?
-
-Neon is a cloud platform that provides managed PostgreSQL databases.
-
-Instead of installing and maintaining a PostgreSQL database server on our own computer or managing database infrastructure manually, we can create and use a hosted PostgreSQL database through Neon.
-
-### Why Did We Choose Neon?
-
-We selected Neon for the following reasons:
-
-1. **Managed PostgreSQL:** We can use PostgreSQL without managing the database server ourselves.
-
-2. **Cloud Database:** Our application backend can connect to the database over the internet.
-
-3. **Developer Friendly:** Neon provides database connection details that can be configured in our backend.
-
-4. **Scalability:** Neon provides features that support changing database requirements as an application grows.
-
-5. **PostgreSQL Compatibility:** We can use standard PostgreSQL features and tools.
-
-## 2.4 What is SQLAlchemy?
-
-SQLAlchemy is a Python SQL toolkit and Object Relational Mapper (ORM).
-
-It helps Python applications communicate with relational databases.
-
-Without an ORM, developers often write SQL queries manually for database operations.
-
-SQLAlchemy provides an alternative approach where Python classes can represent database tables and objects can represent database records.
-
-For example, a Python customer object can represent a customer record in the database.
-
-SQLAlchemy supports both SQL-based operations and ORM-based operations.
-
-### Why Did We Use SQLAlchemy?
-
-We used SQLAlchemy because:
-
-- It integrates with Python applications.
-- It supports PostgreSQL.
-- It provides ORM capabilities.
-- It helps organize database operations.
-- It supports asynchronous database operations.
-- It makes database code easier to maintain.
-
-## 2.5 What is Async SQLAlchemy?
-
-SQLAlchemy supports both synchronous and asynchronous database operations.
-
-In synchronous execution, a database operation generally blocks the current thread until the operation finishes.
-
-In asynchronous execution, the application can await a database operation and allow the event loop to process other available tasks while waiting for the database response.
-
-We selected asynchronous SQLAlchemy because our backend is built using FastAPI and we wanted asynchronous database communication.
-
-We configured the SQLAlchemy asynchronous engine and used AsyncSession for database operations.
-
-### Important Components
-
-**1. create_async_engine()**
-
-This function creates an asynchronous SQLAlchemy engine.
-
-The engine manages database connectivity and provides the foundation for executing database operations.
-
-**2. AsyncSession**
-
-AsyncSession is used to interact with the database asynchronously.
-
-It helps perform operations such as:
-
-- Adding records
-- Reading records
-- Updating records
-- Deleting records
-- Committing transactions
-- Rolling back failed transactions
-
-**3. asyncpg**
-
-We used asyncpg as the asynchronous PostgreSQL database driver.
-
-It allows the Python application to communicate with PostgreSQL using asynchronous operations.
-
-## 2.6 Database Connection Architecture
-
-The basic database communication flow is:
+The database connection follows this architecture:
 
 ```text
-       USER REQUEST
-             |
-             v
-      NEXT.JS FRONTEND
-             |
-             v
-       FASTAPI BACKEND
-             |
-             v
-      SQLALCHEMY ASYNC
-             |
-             v
-        ASYNCPG DRIVER
-             |
-             v
-      NEON POSTGRESQL
-             |
-             v
-      DATABASE RESPONSE
-             |
-             v
-       FASTAPI BACKEND
-             |
-             v
-      FRONTEND RESPONSE
+FastAPI Endpoint
+      |
+      v
+get_db() Dependency
+      |
+      v
+AsyncSessionLocal
+      |
+      v
+SQLAlchemy Async Engine
+      |
+      v
+AsyncPG Driver
+      |
+      v
+Neon PostgreSQL
 ```
 
-The frontend sends a request to FastAPI.
+## 2.4 Environment Configuration
 
-The backend processes the request and communicates with Neon PostgreSQL through SQLAlchemy and the asyncpg driver.
+**File:** `backend/app/core/config.py`
 
-After the database operation completes, the backend returns the appropriate response.
+Pydantic Settings is used to load application configuration from environment variables.
 
-## 2.7 Database Configuration
-
-We configured the database connection through environment-based configuration.
-
-The database connection string contains the information required to connect to the PostgreSQL database.
-
-Sensitive connection details should not be written directly inside application source code.
-
-Instead, they should be stored in environment variables.
-
-For example:
-
-```env
-DATABASE_URL=your_neon_postgresql_connection_string
-```
-
-The example above is a placeholder. The actual connection string must be obtained from the Neon dashboard.
-
-### Why Use Environment Variables?
-
-- They keep sensitive database credentials out of source code.
-- They make it easier to use different configurations for development and production.
-- They reduce the risk of accidentally publishing database credentials on GitHub.
-- They make deployment configuration easier.
-
-The actual `.env` file should not be committed to the GitHub repository.
-
-## 2.8 Asynchronous Database Session Management
-
-A database session represents a unit of interaction between the application and the database.
-
-We use asynchronous sessions to perform database operations.
-
-A session should be managed carefully so that database connections and resources are properly released.
-
-The general workflow is:
-
-1. Create or obtain an asynchronous database session.
-2. Execute database operations.
-3. Commit changes when required.
-4. Roll back changes if an operation fails.
-5. Close or release the session after use.
-
-This helps maintain reliable database communication.
-
-## 2.9 Why Did We Choose Asynchronous Database Operations?
-
-Our backend uses FastAPI, which supports asynchronous request handling.
-
-Database operations may take time because they involve communication with an external database server.
-
-Using asynchronous database operations helps the application avoid blocking the event loop while waiting for database responses.
-
-This is useful when multiple users send requests to the backend.
-
-However, asynchronous programming does not automatically make every database query faster. Proper query design, connection management, and database optimization are also important.
-
-## 2.10 Database Connection Testing
-
-After configuring Neon PostgreSQL, we needed to verify that the backend could establish a connection successfully.
-
-We used a database health-check endpoint to test database connectivity.
-
-The purpose of this endpoint is to check whether the backend can communicate with the configured database.
-
-A successful database health check indicates that the application can establish the required database connection.
-
-It does not necessarily prove that every database operation or application feature is working correctly.
-
-## 2.11 Problems Faced During Database Integration
-
-During development, we encountered database connection-related errors while testing the asynchronous database setup.
-
-One of the errors occurred when the backend attempted to connect to Neon PostgreSQL through SQLAlchemy's asynchronous engine.
-
-We investigated the database connection and asynchronous execution configuration.
-
-This helped us understand the importance of:
-
-- Correct database connection strings.
-- Proper asynchronous database drivers.
-- Correct SQLAlchemy engine configuration.
-- Proper session management.
-- Database connectivity testing.
-
-These checks are important because even a correctly written API cannot perform database operations if the database connection is not configured properly.
-
-## 2.12 Benefits of This Integration
-
-By integrating Neon PostgreSQL with SQLAlchemy, we established the database foundation for Universal Digital Khata.
-
-The main benefits are:
-
-1. Structured storage of business information.
-2. Reliable relational database support.
-3. Cloud-based database access.
-4. Asynchronous database communication.
-5. Organized database operations through SQLAlchemy.
-6. Easier integration with FastAPI.
-7. A foundation for customer, shop, and transaction management.
-
-## 2.13 Final Summary
-
-In this module, we integrated Neon PostgreSQL with our FastAPI backend.
-
-We used SQLAlchemy as the database toolkit and configured asynchronous database communication using AsyncSession and the asyncpg driver.
-
-We also configured environment-based database connection settings and tested database connectivity through a health-check endpoint.
-
-This integration established the database foundation required for the remaining modules of Universal Digital Khata.
-
-**The main objective of this module was to establish reliable, asynchronous communication between our FastAPI backend and the hosted PostgreSQL database.**
-
-
-# 3. Database Models and Migrations
-
-## 3.1 Introduction
-
-After integrating Neon PostgreSQL with our FastAPI backend, the next step was to design the database structure.
-
-Our application needs to store different types of information, such as shop details, customer records, transactions, and user information.
-
-Instead of storing everything in a single table, we organized the data into separate database tables.
-
-For this purpose, we implemented database models using SQLAlchemy ORM and managed database schema changes using Alembic migrations.
-
-## 3.2 What Are Database Models?
-
-A database model is a Python class that represents a database table.
-
-In SQLAlchemy ORM, we define classes and their attributes. These attributes represent the columns of the corresponding database table.
-
-For example, a Customer model can represent a customer table.
-
-A simplified example:
+Important settings include:
 
 ```python
-class Customer(Base):
-    __tablename__ = "customers"
+DATABASE_URL: str
 
-    id = Column(Integer, primary_key=True)
-    name = Column(String)
-    mobile = Column(String)
+JWT_SECRET_KEY: str
+
+GROQ_API_KEY: str
 ```
 
-In this example:
+The settings class also defines application configuration and AI model defaults.
 
-- Customer is the Python model.
-- customers is the database table.
-- id, name, and mobile represent database columns.
+```python
+model_config = SettingsConfigDict(
+    env_file=".env",
+    env_file_encoding="utf-8",
+    case_sensitive=True
+)
+```
 
-This is a simplified illustration of an ORM model, not the complete project implementation.
+This keeps configuration separate from application source code.
 
-## 3.3 Why Did We Create Separate Models?
+The actual credentials are stored in the local environment file and should never be committed to GitHub.
 
-We created separate models to organize application data properly.
+## 2.5 Async Database Engine
+
+**File:** `backend/app/core/database.py`
+
+SQLAlchemy's asynchronous engine is initialized using `create_async_engine()`.
+
+```python
+engine = create_async_engine(
+    database_url,
+    connect_args={
+        "ssl": "require",
+        "statement_cache_size": 0
+    },
+    pool_pre_ping=True,
+    pool_recycle=300,
+    pool_size=3,
+    max_overflow=2
+)
+```
+
+### Important Configuration Explained
+
+| Configuration | Explanation |
+|---|---|
+| `ssl=require` | Requires encrypted database connections |
+| `statement_cache_size=0` | Disables prepared statement caching |
+| `pool_pre_ping=True` | Checks connections before using them |
+| `pool_recycle=300` | Recycles connections after the configured lifetime |
+| `pool_size=3` | Configures the base connection pool size |
+| `max_overflow=2` | Allows additional temporary connections |
+
+The database URL is converted to the `postgresql+asyncpg` driver format before creating the engine.
+
+## 2.6 Declarative Base
+
+The project defines a reusable SQLAlchemy base class.
+
+```python
+class Base(DeclarativeBase):
+    pass
+```
+
+All database models inherit from this class.
+
+SQLAlchemy uses this base class to collect model metadata, which is later used by Alembic migrations.
+
+## 2.7 Asynchronous Session Factory
+
+The project uses `async_sessionmaker` to create asynchronous database sessions.
+
+```python
+AsyncSessionLocal = async_sessionmaker(
+    bind=engine,
+    class_=AsyncSession,
+    expire_on_commit=False
+)
+```
+
+A database dependency is provided to FastAPI endpoints:
+
+```python
+async def get_db():
+    async with AsyncSessionLocal() as session:
+        yield session
+```
+
+This dependency:
+
+1. Creates a database session.
+2. Provides it to the API endpoint.
+3. Keeps the session available during the request.
+4. Closes the session when the request finishes.
+
+This avoids manually creating and closing database sessions in every endpoint.
+
+## 2.8 Database Connectivity Verification
+
+**File:** `backend/app/main.py`
+
+The `/health/db` endpoint checks database connectivity.
+
+```python
+@app.get("/health/db")
+async def database_health():
+
+    async with engine.connect() as connection:
+
+        result = await connection.execute(text("SELECT 1"))
+
+        return {
+            "status": "connected",
+            "database": "Neon PostgreSQL",
+            "result": result.scalar()
+        }
+```
+
+The application also provides `/health/db/tables` to verify whether the expected application tables exist.
+
+## 2.9 Important Files
+
+| File | Responsibility |
+|---|---|
+| `backend/app/core/config.py` | Environment configuration |
+| `backend/app/core/database.py` | Async database engine and sessions |
+| `backend/app/main.py` | Database health-check endpoints |
+| `backend/.env.example` | Environment variable template |
+| `backend/requirements.txt` | Database dependencies |
+
+## 2.10 Module Summary
+
+In this module, Neon PostgreSQL was integrated with FastAPI using SQLAlchemy's asynchronous engine and AsyncPG.
+
+A reusable session factory and FastAPI database dependency were implemented to manage database operations efficiently.
+
+**Key learning:** Asynchronous database connectivity, connection pooling, ORM configuration, and dependency injection in FastAPI.
+
+---
+
+# Module 3: Database Models & Alembic Migrations
+
+## 3.1 Overview
+
+After establishing database connectivity, the next step was to design the database schema.
+
+SQLAlchemy ORM models represent application entities as Python classes.
+
+Instead of manually writing SQL queries for every database operation, ORM models allow us to work with database records through Python objects.
+
+Alembic is used to manage database schema changes through version-controlled migration scripts.
+
+## 3.2 Database Entities
+
+The project contains the following major database models:
+
+| Model | Responsibility |
+|---|---|
+| User | Stores registered user information |
+| Shop | Stores business details |
+| Customer | Stores shop customers |
+| Transaction | Stores credit and payment transactions |
+| CustomerBehaviour | Stores customer behaviour-related information |
+| Repayment | Stores repayment-related records |
+| Notification | Stores notification information |
+
+**Model registration:** `backend/app/models/__init__.py`
+
+This file imports the project models so they can be registered with SQLAlchemy metadata and discovered by Alembic.
+
+## 3.3 User Model
+
+**File:** `backend/app/models/user.py`
+
+The User model represents an account registered on the platform.
+
+Important fields include:
+
+- `id`: UUID primary key.
+- `full_name`: User's full name.
+- `email`: Unique and indexed email address.
+- `password_hash`: Securely hashed password.
+- `created_at`: Account creation timestamp.
+- `updated_at`: Last update timestamp.
+
+Example:
+
+```python
+class User(Base):
+    __tablename__ = "users"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4
+    )
+
+    full_name: Mapped[str] = mapped_column(
+        String(100),
+        nullable=False
+    )
+
+    email: Mapped[str] = mapped_column(
+        String(255),
+        unique=True,
+        index=True,
+        nullable=False
+    )
+```
+
+The model uses UUID values as primary keys instead of sequential integer IDs.
+
+The email field is unique to prevent duplicate accounts.
+
+## 3.4 Shop Model
+
+**File:** `backend/app/models/shop.py`
+
+The Shop model represents a registered business.
+
+Important fields:
+
+- `id`: Unique shop identifier.
+- `owner_id`: Reference to the user who owns the shop.
+- `shop_name`: Business name.
+- `business_category`: Business type.
+- `preferred_language`: Shop's preferred language.
+- `address`: Optional business address.
+- `created_at` and `updated_at`: Timestamps.
+
+### Business Categories
+
+The application defines a Python enum named `BusinessCategory`.
+
+Supported categories include:
+
+- Kirana Store
+- Fruit and Vegetable Shop
+- Bakery
+- Dairy Shop
+- Stationery Shop
+- Hardware Shop
+- Clothing Store
+- Medical Store
+- Other Business
+
+### User-Shop Relationship
+
+The Shop model contains a foreign key:
+
+```python
+owner_id = mapped_column(
+    UUID(as_uuid=True),
+    ForeignKey("users.id", ondelete="CASCADE"),
+    unique=True,
+    nullable=False
+)
+```
+
+The unique constraint on `owner_id` ensures that a user can own only one shop in the current schema.
+
+The relationship is configured as one-to-one between User and Shop.
+
+## 3.5 Relationships Between Models
+
+SQLAlchemy relationships help connect related database entities.
 
 For example:
 
-- User information belongs to the user-related model.
-- Shop information belongs to the shop-related model.
-- Customer information belongs to the customer-related model.
-- Transaction information belongs to the transaction-related model.
+```python
+shop: Mapped["Shop"] = relationship(
+    back_populates="owner",
+    uselist=False,
+    cascade="all, delete-orphan"
+)
+```
 
-This separation provides better organization and makes relationships between different types of data easier to manage.
+This defines the user-side relationship with the Shop model.
 
-## 3.4 What Is SQLAlchemy ORM?
+Similarly, the Shop model defines its owner and customer relationships.
 
-ORM stands for Object Relational Mapping.
+These relationships allow the application to navigate related records through ORM objects.
 
-It allows developers to work with relational database records through Python objects.
+## 3.6 Why UUID?
 
-Without an ORM, developers often write SQL queries manually.
+UUID stands for Universally Unique Identifier.
 
-With SQLAlchemy ORM, we can define Python classes and use them to perform database operations.
+Benefits include:
 
-For example, we can create a customer object and add it to a database session.
+1. Globally unique identifiers.
+2. IDs are not simple sequential numbers.
+3. Suitable for distributed systems.
+4. Useful when records are created across multiple application instances.
 
-SQLAlchemy manages the conversion between Python objects and database operations.
+The project uses PostgreSQL UUID columns through SQLAlchemy's PostgreSQL dialect.
 
-## 3.5 What Are Database Relationships?
+## 3.7 Alembic Migration System
 
-In a digital ledger application, different records are connected to each other.
+**Important files:**
 
-For example:
+- `backend/alembic.ini`
+- `backend/migrations/env.py`
+- `backend/migrations/versions/`
 
-- A shop has customers.
-- A customer can have multiple transactions.
-- A transaction belongs to a particular customer.
-- User and shop records are associated according to the application's ownership design.
+Alembic manages changes to the database schema.
 
-These connections are represented using database relationships.
+Whenever a database model changes, a migration can be generated to describe the required schema modification.
 
-Common relational database concepts include:
+### How Alembic Works
 
-**Primary Key:** A column that uniquely identifies a record in a table.
+```text
+SQLAlchemy Models
+        |
+        v
+Base.metadata
+        |
+        v
+Alembic Environment
+        |
+        v
+Migration Scripts
+        |
+        v
+PostgreSQL Schema Update
+```
 
-**Foreign Key:** A column that references a record in another table.
+## 3.8 Alembic Configuration
 
-**One-to-Many Relationship:** One record can be associated with multiple records in another table.
+**File:** `backend/migrations/env.py`
 
-These concepts help maintain the relationships between application data.
+The migration environment imports the SQLAlchemy Base and application models.
 
-## 3.6 What Is Alembic?
+```python
+from app.core.database import Base, engine
+from app.models import (
+    User,
+    Shop,
+    BusinessCategory,
+    Customer,
+    Transaction,
+    CustomerBehaviour,
+    Notification,
+    Repayment
+)
 
-Alembic is a database migration tool commonly used with SQLAlchemy.
+target_metadata = Base.metadata
+```
 
-Whenever we change the database structure, such as adding a new column or creating a new table, we need a controlled way to apply that change to the database.
+This allows Alembic to compare the model metadata with the current database schema.
 
-Alembic helps manage these database structure changes through migration files.
+The project supports both offline migration configuration and asynchronous online migrations.
 
-A migration file describes the changes that should be applied to the database.
+## 3.9 Migration Example
 
-## 3.7 Why Did We Use Alembic?
+**File:** `backend/migrations/versions/9199db5eb3ca_create_users_and_shops_tables.py`
 
-We used Alembic because:
+This migration creates the initial `users` and `shops` tables.
 
-1. It integrates with SQLAlchemy.
-2. It manages database schema changes.
-3. It keeps track of migration versions.
-4. It helps maintain database consistency across environments.
-5. It reduces the need to manually modify database tables.
-6. It provides a structured migration history.
+Its `upgrade()` function creates the database tables, indexes, and constraints.
 
-## 3.8 How Do Database Migrations Work?
-
-The general migration workflow is:
-
-1. Define or update SQLAlchemy models.
-2. Generate a migration revision.
-3. Review the generated migration file.
-4. Apply the migration to the database.
-5. Verify that the database structure has been updated.
+Its `downgrade()` function reverses those changes.
 
 Example commands:
 
 ```bash
-alembic revision --autogenerate -m "create database tables"
+alembic revision --autogenerate -m "create new table"
+```
+
+```bash
 alembic upgrade head
 ```
 
-The first command generates a migration revision based on model changes and database metadata.
+To reverse the latest migration:
 
-The second command applies pending migrations up to the latest revision.
-
-Generated migrations should always be reviewed before applying them.
-
-## 3.9 What Is the Purpose of a Migration Version?
-
-Alembic maintains a migration history.
-
-Each migration has a revision identifier.
-
-This helps Alembic identify which database changes have already been applied and which changes are still pending.
-
-It also helps developers manage database changes in a controlled order.
-
-## 3.10 Benefits of Database Models and Migrations
-
-- Organized database structure.
-- Better separation of application data.
-- Easier database operations through ORM.
-- Proper relationships between records.
-- Controlled database schema updates.
-- Easier development and maintenance.
-- Better consistency between development and production environments.
-
-## 3.11 Final Summary
-
-In this module, we implemented database models using SQLAlchemy ORM and managed database schema changes using Alembic.
-
-We organized the application data into separate models and established the foundation for relationships between users, shops, customers, and transactions.
-
-Alembic provided a structured way to track and apply database schema changes.
-
-**The main objective was to create an organized, maintainable, and version-controlled database structure for Universal Digital Khata.**
-
-
-# 4. JWT Authentication and Authorization
-
-## 4.1 Introduction
-
-Universal Digital Khata is designed for shop owners who need to manage their business records digitally.
-
-Since the application stores private business information, we needed a secure authentication system.
-
-For this purpose, we implemented JWT-based authentication and user authorization in our FastAPI backend.
-
-This module allows users to authenticate themselves and access protected application resources according to their permissions.
-
-## 4.2 What Is Authentication?
-
-Authentication is the process of verifying the identity of a user.
-
-For example, when a shop owner enters their email and password, the application checks whether the provided credentials are valid.
-
-If the credentials are correct, the application allows the user to access their account.
-
-If the credentials are incorrect, authentication fails.
-
-In simple words:
-
-**Authentication answers the question: Who are you?**
-
-## 4.3 What Is Authorization?
-
-Authorization determines what an authenticated user is allowed to access or perform.
-
-For example, a shop owner should only be allowed to access the business information associated with their account.
-
-The application must not allow one user to access another user's private customer or transaction records.
-
-In simple words:
-
-**Authorization answers the question: What are you allowed to access?**
-
-## 4.4 What Is JWT?
-
-JWT stands for JSON Web Token.
-
-It is a compact token format used to securely transmit information between parties.
-
-In web applications, JWTs are commonly used to represent an authenticated user's identity and relevant claims.
-
-A JWT generally contains three parts:
-
-1. Header
-2. Payload
-3. Signature
-
-### Header
-
-The header contains information about the token type and signing algorithm.
-
-### Payload
-
-The payload contains claims, such as the user's identity and token expiration time.
-
-### Signature
-
-The signature helps verify that the token has not been modified after it was issued.
-
-A JWT is encoded, not automatically encrypted. Sensitive information such as passwords or API keys should never be stored inside its payload.
-
-## 4.5 Why Did We Choose JWT Authentication?
-
-We selected JWT-based authentication because:
-
-- It supports token-based authentication.
-- It works well with REST APIs.
-- The backend can validate tokens on protected requests.
-- It allows the frontend and backend to communicate independently.
-- It supports token expiration.
-- It can carry user identity information through claims.
-
-## 4.6 Authentication Workflow
-
-The general authentication workflow is:
-
-1. The user submits login credentials.
-2. The frontend sends the credentials to the backend.
-3. FastAPI receives the login request.
-4. The backend verifies the user's credentials.
-5. If the credentials are valid, the backend generates an authentication token.
-6. The frontend receives the authentication response.
-7. The frontend uses the token when accessing protected APIs.
-8. The backend validates the token before allowing access to protected resources.
-
-### Architecture Flow
-
-```text
-        USER
-          |
-          v
-     LOGIN FORM
-          |
-          v
-     FASTAPI API
-          |
-          v
-   VERIFY CREDENTIALS
-          |
-          v
-    GENERATE JWT
-          |
-          v
-   RETURN AUTH TOKEN
-          |
-          v
-  PROTECTED API REQUEST
-          |
-          v
-    VALIDATE JWT
-          |
-          v
-   ALLOW OR DENY ACCESS
+```bash
+alembic downgrade -1
 ```
 
-## 4.7 What Happens When a Protected API Is Called?
+Migration commands should be executed from the backend environment with the correct database configuration.
 
-When a user accesses a protected API, the frontend includes the authentication token in the request.
+## 3.10 Why Database Migrations Matter
 
-The backend performs the required token validation.
+Without migrations, database schema changes can become difficult to manage.
 
-The backend checks whether:
+Alembic provides:
 
-- The token is valid.
-- The signature is correct.
-- The token has not expired.
-- The required user identity information is available.
+- Version-controlled database changes.
+- Repeatable schema updates.
+- A migration history.
+- Upgrade and downgrade operations.
+- Better collaboration between developers and deployment environments.
 
-If validation succeeds, the request can continue.
+## 3.11 Important Files
 
-If validation fails, the backend rejects the request.
+| File | Responsibility |
+|---|---|
+| `backend/app/models/user.py` | User database model |
+| `backend/app/models/shop.py` | Shop database model |
+| `backend/app/models/__init__.py` | Model registration |
+| `backend/app/core/database.py` | Declarative Base |
+| `backend/migrations/env.py` | Alembic environment |
+| `backend/alembic.ini` | Migration configuration |
+| `backend/migrations/versions/` | Versioned migration scripts |
 
-## 4.8 Password Security
+## 3.12 Module Summary
 
-Passwords should never be stored as plain text in a database.
+In this module, the application's database entities were represented through SQLAlchemy ORM models.
 
-A secure authentication system stores password hashes instead of original passwords.
+Relationships, UUID primary keys, unique constraints, foreign keys, timestamps, and business category enums were defined.
 
-When a user logs in, the backend verifies the submitted password against the stored password hash.
+Alembic was configured to manage schema changes through migration scripts.
 
-Password hashing is different from encryption because password hashes are designed to be verified rather than decrypted.
+**Key learning:** Database schema design, ORM relationships, relational constraints, and version-controlled database migrations.
 
-## 4.9 User Authorization and Data Protection
+---
 
-Authentication alone is not enough to protect business data.
+# Module 4: JWT Authentication & User Authorization
 
-The backend must also verify that the authenticated user has permission to access the requested resource.
+## 4.1 Overview
 
-For example:
+Authentication is one of the most important parts of Universal Digital Khata.
 
-- User A should not access User B's customer records.
-- User A should not modify User B's transactions.
-- A shop owner should access only the shop resources permitted by the application's ownership rules.
+The application uses JSON Web Tokens (JWT) to authenticate users and protect private API endpoints.
 
-This is important because hiding information in the frontend does not provide actual backend security.
+A user must register and log in before accessing authenticated resources.
 
-The backend must enforce authorization checks on protected operations.
+The authentication system consists of:
 
-## 4.10 Benefits of JWT Authentication
+1. User registration.
+2. Password hashing.
+3. User login.
+4. JWT token generation.
+5. Token verification.
+6. Current-user identification.
+7. Protected API access.
 
-1. Secure user authentication.
-2. Token-based API access.
-3. Protected backend endpoints.
-4. User identity verification.
-5. Support for token expiration.
-6. Separation of authentication and business logic.
-7. Better protection of private business information.
+## 4.2 Authentication Architecture
 
-## 4.11 Important Security Considerations
+```text
+Frontend
+   |
+   v
+Register / Login Form
+   |
+   v
+FastAPI Authentication API
+   |
+   v
+Auth Service
+   |
+   v
+Password Verification / Hashing
+   |
+   v
+PostgreSQL User Record
+   |
+   v
+JWT Access Token
+   |
+   v
+Frontend Token Storage
+   |
+   v
+Protected API Requests
+   |
+   v
+JWT Verification
+   |
+   v
+Current User
+```
 
-A production authentication system should also consider:
+## 4.3 Password Hashing with Argon2
 
-- Secure password hashing.
-- Appropriate token expiration.
-- Safe token storage.
-- HTTPS communication.
-- Secret key protection.
-- Token validation on protected endpoints.
-- Authorization checks for every sensitive resource.
-- Appropriate handling of expired and invalid tokens.
+**File:** `backend/app/services/security.py`
 
-The JWT signing secret must be stored in environment variables and must never be committed to GitHub.
+The application uses `pwdlib` with its recommended password hashing configuration.
 
-## 4.12 Final Summary
+```python
+from pwdlib import PasswordHash
 
-In this module, we implemented JWT-based authentication and user authorization in our FastAPI backend.
+password_hasher = PasswordHash.recommended()
+```
 
-The authentication system verifies user identity and provides an authentication token for accessing protected APIs.
+Two helper functions are implemented:
 
-Authorization ensures that users can access only the resources permitted for their accounts.
+### Hash Password
 
-This module provides an important security foundation for managing private shop, customer, and transaction information.
+```python
+def hash_password(password: str) -> str:
+    return password_hasher.hash(password)
+```
 
-**The main objective was to protect the application and ensure that users can access their permitted business data securely.**
+This converts a plain-text password into a secure password hash before storing it in the database.
 
+### Verify Password
 
+```python
+def verify_password(
+    plain_password: str,
+    hashed_password: str
+) -> bool:
 
-# 5. Shop Management APIs
+    return password_hasher.verify(
+        plain_password,
+        hashed_password
+    )
+```
 
-## 5.1 Introduction
+During login, the entered password is checked against the stored password hash.
 
-Universal Digital Khata is designed to support shop owners in managing their daily business credit records.
+The original plain-text password is not stored in the User table.
 
-A shop is the main business entity in our application.
+## 4.4 Registration API
 
-Before managing customers and transactions, the application needs to maintain the shop information associated with the authenticated user.
+**File:** `backend/app/api/auth.py`
 
-For this purpose, we implemented Shop Management APIs using FastAPI.
+Endpoint:
 
-These APIs allow the application to manage shop-related information through backend endpoints.
+`POST /api/v1/auth/register`
 
-## 5.2 Why Did We Need Shop Management?
+The registration endpoint accepts user information through the `UserRegister` schema.
 
-Every business has its own identity and information.
+**File:** `backend/app/schemas/auth.py`
 
-For example, a shop may have:
+```python
+class UserRegister(BaseModel):
+    full_name: str = Field(min_length=2, max_length=100)
+    email: EmailStr
+    password: str = Field(min_length=8, max_length=128)
+```
+
+The registration process is handled by:
+
+`backend/app/services/auth.py`
+
+The `register_user()` function:
+
+1. Normalizes the email by trimming whitespace and converting it to lowercase.
+2. Checks whether the email already exists.
+3. Hashes the password.
+4. Creates a new User record.
+5. Commits the transaction.
+6. Refreshes the database object.
+7. Rolls back the transaction if an exception occurs.
+
+If the email already exists, the service raises a `ValueError`, which the API converts into an HTTP 409 Conflict response.
+
+## 4.5 Login API
+
+Endpoint:
+
+`POST /api/v1/auth/login`
+
+The login API accepts:
+
+- Email address
+- Password
+
+The `authenticate_user()` function retrieves the user using the normalized email address.
+
+It then verifies the entered password against the stored password hash.
+
+If authentication fails, the API returns:
+
+`401 Unauthorized`
+
+If authentication succeeds, the backend generates an access token.
+
+## 4.6 JWT Token Generation
+
+**File:** `backend/app/core/jwt.py`
+
+The project uses PyJWT to generate signed access tokens.
+
+```python
+def create_access_token(subject: str) -> str:
+
+    expires_at = datetime.now(timezone.utc) + timedelta(
+        minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
+    )
+
+    payload = {
+        "sub": subject,
+        "exp": expires_at
+    }
+
+    return jwt.encode(
+        payload,
+        settings.JWT_SECRET_KEY,
+        algorithm=settings.JWT_ALGORITHM
+    )
+```
+
+### JWT Payload
+
+The token contains:
+
+| Claim | Purpose |
+|---|---|
+| `sub` | User identifier |
+| `exp` | Token expiration time |
+
+The project uses the configured JWT algorithm and secret key.
+
+The access token expiration is configured through:
+
+`ACCESS_TOKEN_EXPIRE_MINUTES`
+
+The current default is 30 minutes.
+
+## 4.7 JWT Verification
+
+The `verify_access_token()` function decodes the token and verifies its signature and expiration.
+
+```python
+payload = jwt.decode(
+    token,
+    settings.JWT_SECRET_KEY,
+    algorithms=[settings.JWT_ALGORITHM]
+)
+```
+
+If the token is invalid or expired, the function returns `None`.
+
+It also checks that the token contains a subject (`sub`).
+
+## 4.8 Protected API Authorization
+
+**File:** `backend/app/api/deps.py`
+
+FastAPI's dependency injection system is used to identify the authenticated user.
+
+The project uses:
+
+```python
+bearer_scheme = HTTPBearer()
+```
+
+The `get_current_user()` dependency performs the following operations:
+
+1. Extracts the Bearer token from the Authorization header.
+2. Verifies the JWT token.
+3. Extracts the user ID from the `sub` claim.
+4. Converts the ID into a UUID.
+5. Queries the User table.
+6. Returns the authenticated User object.
+7. Raises HTTP 401 if validation fails.
+
+Protected endpoints can use:
+
+```python
+current_user: User = Depends(get_current_user)
+```
+
+This avoids repeating token-validation logic in every endpoint.
+
+## 4.9 Current User API
+
+Endpoint:
+
+`GET /api/v1/auth/me`
+
+This endpoint returns the currently authenticated user's profile.
+
+It uses the `get_current_user()` dependency to validate the request.
+
+The response is serialized through `UserResponse`.
+
+## 4.10 Frontend Authentication Integration
+
+The frontend implements authentication using a feature-based structure.
+
+Important files:
+
+- `frontend/src/features/auth/auth-api.ts`
+- `frontend/src/features/auth/auth-context.tsx`
+- `frontend/src/features/auth/token-storage.ts`
+- `frontend/src/features/auth/types.ts`
+- `frontend/src/app/login/page.tsx`
+- `frontend/src/app/register/page.tsx`
+
+### Authentication API Layer
+
+The `auth-api.ts` file provides three API functions:
+
+| Function | Purpose |
+|---|---|
+| `registerUser()` | Registers a new user |
+| `loginUser()` | Authenticates a user |
+| `getCurrentUser()` | Fetches the authenticated profile |
+
+These functions communicate with the FastAPI authentication endpoints.
+
+### Authentication Context
+
+The `auth-context.tsx` file implements React Context for sharing authentication state.
+
+It maintains:
+
+- `user`
+- `token`
+- `isLoading`
+- `isAuthenticated`
+
+It also provides:
+
+- `setAuth()`
+- `logout()`
+- `useAuth()`
+
+When the application initializes, the AuthProvider checks for a saved token and attempts to retrieve the current user.
+
+If token validation fails, the saved token is removed and the authentication state is reset.
+
+### Token Storage
+
+**File:** `frontend/src/features/auth/token-storage.ts`
+
+The project uses browser `sessionStorage` for access-token storage.
+
+The following helper functions are implemented:
+
+- `saveToken()`
+- `getToken()`
+- `removeToken()`
+
+### Login Flow
+
+**File:** `frontend/src/app/login/page.tsx`
+
+The login page performs these operations:
+
+1. Accepts email and password.
+2. Calls the login API.
+3. Receives the JWT access token.
+4. Fetches the current user profile.
+5. Updates the global authentication context.
+6. Checks whether the user has registered a shop.
+7. Redirects existing shop owners to `/assistant`.
+8. Redirects users without a shop to `/onboarding/shop`.
+
+### Registration Flow
+
+**File:** `frontend/src/app/register/page.tsx`
+
+The registration page:
+
+1. Collects the user's full name, email, and password.
+2. Validates password confirmation.
+3. Checks the minimum password length.
+4. Calls the registration API.
+5. Displays success or error messages.
+6. Redirects the user to sign in after successful registration.
+
+## 4.11 Authentication API Summary
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| POST | `/api/v1/auth/register` | Register a user |
+| POST | `/api/v1/auth/login` | Authenticate a user |
+| GET | `/api/v1/auth/me` | Retrieve current user profile |
+
+## 4.12 Important Files
+
+| File | Responsibility |
+|---|---|
+| `backend/app/api/auth.py` | Authentication endpoints |
+| `backend/app/services/auth.py` | Registration and login business logic |
+| `backend/app/services/security.py` | Password hashing and verification |
+| `backend/app/core/jwt.py` | JWT creation and verification |
+| `backend/app/api/deps.py` | Current-user authorization dependency |
+| `backend/app/schemas/auth.py` | Authentication request and response schemas |
+| `frontend/src/features/auth/auth-api.ts` | Frontend authentication API |
+| `frontend/src/features/auth/auth-context.tsx` | Global authentication state |
+| `frontend/src/features/auth/token-storage.ts` | Browser token storage |
+| `frontend/src/app/login/page.tsx` | Login UI |
+| `frontend/src/app/register/page.tsx` | Registration UI |
+
+## 4.13 Module Summary
+
+In this module, JWT-based authentication was implemented using FastAPI and PyJWT.
+
+Passwords are hashed using Argon2 through `pwdlib`. Protected API endpoints use FastAPI dependencies to validate access tokens and identify the current user.
+
+The frontend integrates authentication through React Context, API helper functions, and browser session storage.
+
+**Key learning:** Secure password handling, JWT authentication, Bearer token validation, FastAPI dependency injection, and global authentication state management in React.
+
+---
+
+## 5. Shop Management Module
+
+### Overview
+
+The Shop Management Module allows an authenticated user to register and manage their business profile. Each user can register one shop, which acts as the primary business entity for managing customers, transactions, and other shop-related data.
+
+The shop profile stores:
+
+- Shop or business name
+- Business category
+- Preferred language
+- Shop address
+
+The module supports shop creation, retrieving the logged-in user's shop details, and updating shop information.
+
+### Backend Implementation
+
+**1. Shop API Routes**
+
+File: `backend/app/api/shop.py`
+
+The API router uses the `/shops` prefix and provides three endpoints:
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/shops/` | Register a new shop |
+| GET | `/shops/me` | Retrieve the current user's shop |
+| PATCH | `/shops/me` | Update shop details |
+
+All three endpoints use the `get_current_user` dependency, ensuring that shop operations are associated with an authenticated user.
+
+**2. Shop Service Layer**
+
+File: `backend/app/services/shop.py`
+
+The service layer contains the business logic:
+
+- `create_shop()` checks whether the authenticated user already has a registered shop.
+- If a shop already exists, it raises a `ValueError`.
+- Otherwise, it creates a shop using the authenticated user's ID.
+- `get_my_shop()` retrieves the shop using the current user's ID.
+- `update_my_shop()` updates only the fields supplied in the request.
+
+The update operation uses Pydantic's `model_dump(exclude_unset=True)` to distinguish fields that were actually provided from fields that were omitted.
+
+Database changes are committed after successful operations. If an exception occurs, the transaction is rolled back.
+
+**3. Pydantic Schemas**
+
+File: `backend/app/schemas/shop.py`
+
+Three schemas define the request and response structures:
+
+- `ShopCreate`: Validates shop registration data.
+- `ShopUpdate`: Supports partial updates.
+- `ShopResponse`: Defines the shop information returned by the API.
+
+The shop name must contain between 2 and 150 characters. The preferred language defaults to English (`en`), and the address is optional.
+
+### Frontend Implementation
+
+**1. Shop Onboarding Page**
+
+File: `frontend/src/app/onboarding/shop/page.tsx`
+
+The onboarding page provides a form where users enter their business information.
+
+Implemented fields include:
 
 - Shop name
 - Business category
-- Contact information
+- Preferred language
+- Optional address
+
+Supported business categories include Kirana Store, Fruit & Vegetable Shop, Bakery, Dairy Shop, Stationery Shop, Hardware Shop, Clothing Store, Medical Store, and Other Business.
+
+The page checks authentication before allowing shop registration. After successful registration, the user is redirected to `/assistant`.
+
+**2. Shop API Integration**
+
+File: `frontend/src/features/dashboard/shop-api.ts`
+
+This file provides frontend API functions:
+
+- `createShop()`
+- `getMyShop()`
+- `updateMyShop()`
+
+These functions use the shared `apiRequest()` utility and pass the authentication token to the backend.
+
+**3. Type Definitions**
+
+File: `frontend/src/features/dashboard/shop-types.ts`
+
+TypeScript interfaces define the business category, shop creation payload, and shop response. This helps maintain consistent data structures between frontend components and API calls.
+
+### Complete Flow
+
+1. The user logs in to the application.
+2. The user opens the shop onboarding page.
+3. The frontend collects the business details.
+4. The frontend sends a POST request to `/shops/`.
+5. FastAPI validates the request and identifies the authenticated user.
+6. The service checks whether the user already has a shop.
+7. SQLAlchemy stores the shop details in PostgreSQL.
+8. The user is redirected to the assistant page.
+
+### Key Learning
+
+This module implements a one-user-one-shop ownership structure, authenticated resource management, partial updates, Pydantic validation, and separation of API routes from business logic.
+
+---
+
+## 6. Customer Management Module
+
+### Overview
+
+The Customer Management Module allows shop owners to maintain their customer records digitally.
+
+Instead of maintaining customer information in physical registers, shop owners can create, view, update, and delete customer records through the application.
+
+Each customer belongs to a particular shop. This ensures that customers are managed within the correct business account.
+
+Customer information includes:
+
+- Full name
+- Mobile number
 - Address
-- Owner information
+- Additional notes
+- Creation and update timestamps
 
-The application needs to store this information so that it can associate customers and transactions with the correct business.
+### Database Design
 
-Without shop management, it would become difficult to organize business data properly.
+File: `backend/app/models/customer.py`
 
-## 5.3 What Are Shop Management APIs?
+The `Customer` SQLAlchemy model represents the customers table.
 
-Shop Management APIs are backend endpoints responsible for handling shop-related operations.
+Important fields include:
 
-The frontend communicates with these APIs through HTTP requests.
-
-The backend receives the request, performs validation and business logic, interacts with the database, and returns an appropriate response.
-
-These APIs act as the communication layer between the frontend and the shop-related database operations.
-
-## 5.4 Why Did We Use FastAPI?
-
-We used FastAPI to implement the shop management endpoints because:
-
-1. It supports REST API development.
-2. It provides request and response validation.
-3. It integrates with Python and SQLAlchemy.
-4. It supports asynchronous request handling.
-5. It provides automatic API documentation.
-6. It allows us to organize backend functionality into separate routes.
-
-## 5.5 Main Responsibilities of Shop Management
-
-The Shop Management module is responsible for:
-
-- Managing shop-related information.
-- Associating shop records with the correct user.
-- Validating incoming shop data.
-- Storing shop information in PostgreSQL.
-- Retrieving shop information when required.
-- Updating shop details.
-- Protecting shop resources through authentication and authorization.
-
-The exact operations available depend on the implemented API endpoints.
-
-## 5.6 Shop Creation Workflow
-
-When a user creates a shop, the general workflow is:
-
-1. The user enters the required shop information in the frontend.
-2. The frontend sends the information to the backend.
-3. FastAPI receives the request.
-4. The backend validates the incoming data.
-5. The backend identifies the authenticated user.
-6. The shop information is processed and stored in PostgreSQL.
-7. The backend returns the operation result.
-8. The frontend displays the appropriate response.
-
-### Architecture Flow
-
-```text
-       SHOP CREATION FORM
-                |
-                v
-          NEXT.JS FRONTEND
-                |
-                v
-         FASTAPI ENDPOINT
-                |
-                v
-         REQUEST VALIDATION
-                |
-                v
-       AUTHENTICATED USER CHECK
-                |
-                v
-        SHOP BUSINESS LOGIC
-                |
-                v
-         SQLALCHEMY ORM
-                |
-                v
-         NEON POSTGRESQL
-                |
-                v
-          API RESPONSE
-```
-
-## 5.7 Shop Data Validation
-
-Data validation is important because incorrect information can create problems in the database and other application modules.
-
-For example:
-
-- A required shop name should not be missing.
-- Contact information should follow the expected format.
-- Business information should be valid.
-- The application should reject invalid requests.
-
-FastAPI supports request validation through its integration with Pydantic.
-
-This helps the backend validate incoming data before processing it.
-
-## 5.8 Relationship Between User and Shop
-
-A shop needs to be associated with the correct user.
-
-This relationship is important for maintaining ownership of business information.
-
-For example, when a shop owner logs in, the backend should identify the shop associated with that authenticated user.
-
-This also helps other modules identify which shop's customers and transactions should be accessed.
-
-The database relationship and authorization checks work together to protect shop information.
-
-## 5.9 Shop Management and Other Modules
-
-Shop Management acts as an important foundation for other application features.
-
-### Customer Management
-
-Customer records need to be associated with the appropriate shop.
-
-### Transaction Management
-
-Transactions need to be organized under the correct business and customer records.
-
-### Dashboard Analytics
-
-Dashboard information should represent the business data belonging to the relevant shop.
-
-### AI Credit Risk Analysis
-
-AI-based analysis requires access to the appropriate customer and transaction information.
-
-Therefore, shop management helps organize the business data used by the remaining application modules.
-
-## 5.10 Why Did We Keep Shop Management Separate?
-
-We separated shop management from customer and transaction management because each module has a different responsibility.
-
-Shop Management handles business information.
-
-Customer Management handles customer records.
-
-Transaction Management handles credit and payment records.
-
-This separation provides:
-
-- Better code organization.
-- Easier debugging.
-- Independent API development.
-- Easier testing.
-- Better maintainability.
-- Clear separation of responsibilities.
-
-## 5.11 Benefits of Shop Management APIs
-
-1. Centralized management of shop information.
-2. Association between users and their shops.
-3. Better organization of business data.
-4. Foundation for customer management.
-5. Foundation for transaction management.
-6. Support for dashboard and reporting features.
-7. Better separation of backend responsibilities.
-
-## 5.12 Final Summary
-
-In this module, we implemented Shop Management APIs using FastAPI.
-
-These APIs provide the backend functionality required to manage shop-related information and associate it with the authenticated user.
-
-We also established the shop management foundation required by customer management, transaction management, dashboard analytics, and AI-related modules.
-
-**The main objective was to create a centralized way to manage shop information and organize all business-related data under the correct shop.**
-
-
-# 6. Customer Management APIs
-
-## 6.1 Introduction
-
-Customer Management is one of the core modules of Universal Digital Khata.
-
-In traditional shops, shopkeepers maintain customer details and credit records in physical notebooks. Managing these records manually can become difficult when the number of customers increases.
-
-To solve this problem, we implemented Customer Management APIs using FastAPI.
-
-These APIs allow the application to manage customer-related information digitally and associate customer records with the appropriate shop.
-
-## 6.2 Why Did We Need Customer Management?
-
-A shopkeeper needs to maintain customer information to manage credit transactions.
-
-For example, a customer may purchase products worth ₹500 and decide to pay later.
-
-The shopkeeper needs to maintain the customer's details so that the transaction can be recorded against the correct person.
-
-Customer Management provides the foundation for maintaining these records.
-
-## 6.3 Main Responsibilities
-
-The Customer Management module handles:
-
-- Managing customer information.
-- Associating customers with the appropriate shop.
-- Validating customer-related requests.
-- Retrieving customer records.
-- Updating customer information.
-- Supporting customer-related operations used by other modules.
-
-## 6.4 How Does It Work?
-
-The frontend communicates with the Customer Management APIs through HTTP requests.
-
-The general workflow is:
-
-1. The shopkeeper opens the customer section.
-2. The frontend sends a request to FastAPI.
-3. FastAPI validates the request.
-4. The backend checks the authenticated user's access.
-5. The customer-related business logic is executed.
-6. SQLAlchemy interacts with PostgreSQL.
-7. The backend returns the API response.
-8. The frontend displays the result.
-
-## 6.5 Customer Creation Workflow
-
-When a shopkeeper adds a new customer:
-
-```text
-      CUSTOMER FORM
-            |
-            v
-      NEXT.JS FRONTEND
-            |
-            v
-       FASTAPI API
-            |
-            v
-     REQUEST VALIDATION
-            |
-            v
-   AUTHORIZATION CHECK
-            |
-            v
-    CUSTOMER BUSINESS LOGIC
-            |
-            v
-      SQLALCHEMY ORM
-            |
-            v
-    NEON POSTGRESQL
-            |
-            v
-       API RESPONSE
-```
-
-This flow explains how customer information moves from the frontend to the database.
-
-## 6.6 Customer and Shop Relationship
-
-Customer records need to be associated with the correct shop.
-
-For example, if Shop A creates a customer, that customer should belong to Shop A rather than another shop.
-
-This relationship helps maintain proper data organization and supports access control.
-
-It also allows the transaction module to identify the correct customer when recording a credit or payment transaction.
-
-## 6.7 Customer Validation
-
-Customer information should be validated before it is stored.
-
-Validation helps prevent incomplete or invalid records.
-
-For example, the backend may validate:
-
-- Required customer information.
-- Valid input formats.
-- Shop ownership.
-- Customer existence when performing customer-related operations.
-
-FastAPI and Pydantic help validate incoming API data.
-
-## 6.8 Integration with Other Modules
-
-Customer Management is connected to several other modules.
-
-**Transaction Management:** Transactions are associated with customers.
-
-**Dashboard Analytics:** Customer records help generate customer-related business information.
-
-**AI Credit Risk Analysis:** Customer transaction history can be used for credit risk insights.
-
-**Notifications:** Customer contact information can support payment reminders and updates.
-
-## 6.9 Benefits
-
-- Digital customer record management.
-- Better organization of customer information.
-- Association between customers and shops.
-- Foundation for credit transaction tracking.
-- Easier integration with analytics and AI features.
-- Reduced dependency on physical notebooks.
-
-## 6.10 Final Summary
-
-In this module, we implemented Customer Management APIs using FastAPI.
-
-These APIs provide backend functionality for managing customer information and connecting customer records with the appropriate shop.
-
-This module is an important foundation for transaction management, dashboard analytics, AI-based credit insights, and customer notifications.
-
-**The main objective was to provide shopkeepers with a structured digital system for managing their customers.**
-
-
-# 7. Transaction Management and Notifications
-
-## 7.1 Introduction
-
-Transaction Management is one of the most important modules of Universal Digital Khata.
-
-In traditional businesses, shopkeepers often record customer credit and payment details in physical notebooks.
-
-This process can become difficult when there are many customers and daily transactions.
-
-To solve this problem, we implemented Transaction Management APIs using FastAPI.
-
-This module provides backend functionality for managing customer-related financial transactions.
-
-## 7.2 What Is Transaction Management?
-
-Transaction Management is the process of recording and maintaining financial activities associated with customers.
-
-In a digital ledger application, two important transaction types are:
-
-**Credit Transaction:** When a customer purchases something but does not pay immediately, the amount is recorded as credit.
-
-**Payment Transaction:** When a customer pays an outstanding amount, the payment is recorded.
-
-These records help the shopkeeper maintain customer account information.
-
-## 7.3 Why Did We Need This Module?
-
-We needed a centralized system to:
-
-- Record customer credit.
-- Record customer payments.
-- Maintain transaction history.
-- Track outstanding balances.
-- Associate transactions with the correct customer and shop.
-- Support customer notifications.
-
-Without a transaction management system, shopkeepers would need to maintain these records manually.
-
-## 7.4 Transaction Creation Workflow
-
-The general transaction workflow is:
-
-1. The shopkeeper selects a customer.
-2. The shopkeeper enters transaction information.
-3. The frontend sends the request to FastAPI.
-4. The backend validates the request.
-5. The backend verifies the relevant customer and shop association.
-6. Transaction business logic is executed.
-7. SQLAlchemy stores the transaction in PostgreSQL.
-8. The backend returns the result.
-9. The frontend updates the transaction information.
-
-### Architecture Flow
-
-```text
-       TRANSACTION FORM
-              |
-              v
-        NEXT.JS FRONTEND
-              |
-              v
-          FASTAPI API
-              |
-              v
-       REQUEST VALIDATION
-              |
-              v
-     CUSTOMER / SHOP CHECK
-              |
-              v
-     TRANSACTION PROCESSING
-              |
-              v
-         SQLALCHEMY
-              |
-              v
-      NEON POSTGRESQL
-              |
-              v
-         API RESPONSE
-```
-
-## 7.5 Credit and Payment Records
-
-A credit transaction increases the amount a customer owes.
-
-A payment transaction records money received from the customer and reduces the outstanding amount according to the application's accounting rules.
-
-For example:
-
-- Customer purchases goods worth ₹1,000 on credit.
-- Customer later pays ₹400.
-- The remaining outstanding amount is ₹600.
-
-This is a simplified example to explain the concept.
-
-## 7.6 Transaction History
-
-Transaction history helps shopkeepers review previous financial activities.
-
-It provides a record of customer credit and payment entries.
-
-This information is useful for:
-
-- Reviewing customer accounts.
-- Understanding previous transactions.
-- Tracking outstanding balances.
-- Supporting business reports.
-- Providing data for AI-based analysis.
-
-## 7.7 What Is Transaction Idempotency?
-
-Transaction idempotency is an important concept in reliable API development.
-
-Sometimes a user may submit a request more than once because of:
-
-- Slow internet.
-- Network interruption.
-- Accidental repeated clicks.
-- Automatic request retries.
-
-If the same transaction is processed multiple times, it may create duplicate financial records.
-
-To reduce this risk, we implemented transaction idempotency support.
-
-An idempotency key helps the backend identify repeated submissions of the same logical request.
-
-For example:
-
-```text
-First request:
-Idempotency Key = TXN-123
-
-Repeated request:
-Idempotency Key = TXN-123
-```
-
-The backend can use this key to recognize that the request has already been processed instead of creating another transaction.
-
-The exact duplicate-handling behavior depends on the backend implementation.
-
-## 7.8 FIFO Repayment Allocation
-
-FIFO stands for First In, First Out.
-
-In credit management, FIFO repayment allocation means applying a customer's payment to the oldest outstanding credit first.
-
-Example:
-
-| Credit entry | Amount |
-|---|---:|
-| First credit | ₹500 |
-| Second credit | ₹300 |
-| Third credit | ₹200 |
-
-Suppose the customer pays ₹600.
-
-Under FIFO allocation:
-
-- ₹500 is allocated to the first credit.
-- ₹100 is allocated to the second credit.
-- ₹200 remains outstanding on the second credit.
-- The third credit remains outstanding at ₹200.
-
-This approach provides a structured way to allocate repayments against older dues first.
-
-## 7.9 Customer Notifications
-
-Notifications help improve communication between shopkeepers and customers.
-
-The application includes customer notification and payment reminder functionality.
-
-Notifications can help customers stay informed about their outstanding payments.
-
-A typical reminder workflow is:
-
-1. The shopkeeper selects a customer or reminder action.
-2. The backend processes the reminder request.
-3. The notification functionality handles the communication.
-4. The customer receives the reminder through the configured notification channel, if successfully delivered.
-
-The exact notification provider and delivery mechanism depend on the configured implementation.
-
-## 7.10 Benefits
-
-- Digital credit and payment records.
-- Organized transaction history.
-- Better tracking of outstanding amounts.
-- Reduced risk of duplicate transaction submissions.
-- Structured repayment allocation using FIFO.
-- Support for customer payment reminders.
-- Foundation for AI-based financial analysis.
-
-## 7.11 Final Summary
-
-In this module, we implemented Transaction Management APIs to manage customer credit and payment records.
-
-We also introduced transaction idempotency support to reduce duplicate transaction processing and FIFO repayment allocation to handle payments against older outstanding credits.
-
-Customer notification functionality supports payment reminders and communication.
-
-**The main objective was to make customer credit and payment tracking more organized, reliable, and convenient for shopkeepers.**
-
-
-# 8. Dashboard Analytics and Summary APIs
-
-## 8.1 Introduction
-
-A shopkeeper needs more than just customer and transaction records.
-
-They also need to understand the overall financial condition of their business.
-
-For example:
-
-- How much money is currently outstanding?
-- How much payment has been received?
-- How many customers are registered?
-- What is the overall credit position of the shop?
-
-To provide this information in one place, we implemented Dashboard Analytics and Summary APIs using FastAPI.
-
-These APIs provide summarized business information to the frontend dashboard.
-
-## 8.2 What Is Dashboard Analytics?
-
-Dashboard Analytics is the process of converting raw application records into meaningful summary information.
-
-Instead of checking every customer and transaction individually, the shopkeeper can view important business information in a centralized dashboard.
-
-The backend retrieves and processes relevant database information and returns summary data through APIs.
-
-## 8.3 Why Did We Need Dashboard APIs?
-
-We needed dashboard APIs because shopkeepers require a quick overview of their business activities.
-
-A centralized dashboard helps users:
-
-- Understand outstanding customer credit.
-- Review payment-related information.
-- View customer-related summaries.
-- Monitor business activity.
-- Make better business decisions.
-
-## 8.4 How Does Dashboard Analytics Work?
-
-The frontend requests dashboard information from the FastAPI backend.
-
-The backend retrieves the required records from PostgreSQL and performs the necessary calculations.
-
-The summarized information is then returned to the frontend.
-
-### Architecture Flow
-
-```text
-        SHOPKEEPER
-             |
-             v
-       NEXT.JS DASHBOARD
-             |
-             v
-        FASTAPI API
-             |
-             v
-      DATABASE QUERIES
-             |
-             v
-     NEON POSTGRESQL
-             |
-             v
-    DATA AGGREGATION
-             |
-             v
-      SUMMARY RESPONSE
-             |
-             v
-      DASHBOARD DISPLAY
-```
-
-## 8.5 What Is Data Aggregation?
-
-Data aggregation means combining multiple records to calculate meaningful summary values.
-
-For example, suppose a shop has three outstanding customer balances:
-
-| Customer | Outstanding amount |
-|---|---:|
-| Customer A | ₹500 |
-| Customer B | ₹300 |
-| Customer C | ₹200 |
-
-The total outstanding amount is:
-
-\[
-500 + 300 + 200 = 1000
-\]
-
-Therefore, the total outstanding credit is ₹1,000.
-
-This is a simple example of aggregation.
-
-Database aggregation functions such as SUM and COUNT can be used to calculate summary information.
-
-## 8.6 Examples of Dashboard Metrics
-
-Depending on the implemented API response, a shop dashboard can display metrics such as:
-
-**Total Outstanding Credit:** The total amount customers currently owe.
-
-**Total Payments:** The total recorded payment amount for the selected period or scope.
-
-**Total Customers:** The number of customer records associated with the shop.
-
-**Transaction Summary:** A summarized view of transaction activity.
-
-These are examples of useful dashboard metrics; the exact fields depend on the actual API response.
-
-## 8.7 Backend Responsibilities
-
-The backend is responsible for:
-
-1. Receiving dashboard requests.
-2. Validating the authenticated user's access.
-3. Identifying the relevant shop.
-4. Retrieving required database records.
-5. Performing summary calculations.
-6. Returning structured API responses.
-
-This keeps the main data-processing logic on the backend instead of relying entirely on frontend calculations.
-
-## 8.8 Why Did We Use Summary APIs?
-
-We used summary APIs to separate dashboard data processing from frontend presentation.
-
-The frontend does not need to retrieve every individual record just to display a summary.
-
-Instead, it can request the required summarized information from the backend.
-
-This approach can reduce unnecessary data transfer and keep business calculations consistent.
-
-## 8.9 Integration with Other Modules
-
-Dashboard Analytics depends on information from other application modules.
-
-**Shop Management:** Identifies the relevant business.
-
-**Customer Management:** Provides customer-related information.
-
-**Transaction Management:** Provides credit and payment records.
-
-**AI Credit Risk Analysis:** Can provide additional insights that help shopkeepers understand customer payment behavior.
-
-Therefore, dashboard analytics brings information from different modules into one useful view.
-
-## 8.10 Benefits
-
-- Centralized business overview.
-- Quick access to important metrics.
-- Better understanding of outstanding credit.
-- Reduced need to manually calculate totals.
-- Structured backend data processing.
-- Better decision-making support.
-- Easier integration with future analytics features.
-
-## 8.11 Final Summary
-
-In this module, we implemented Dashboard Analytics and Summary APIs using FastAPI.
-
-These APIs retrieve relevant business information, process records, and provide summarized data to the frontend dashboard.
-
-This helps shopkeepers understand their business activity without manually reviewing every customer and transaction record.
-
-**The main objective was to convert application records into useful business summaries and provide a centralized dashboard experience.**
-
-# 9. AI-Based Credit Risk Analysis
-
-## 9.1 Introduction
-
-One of the important features of Universal Digital Khata is AI-based credit risk analysis.
-
-In a traditional shop, shopkeepers often give products to customers on credit. However, it can be difficult to understand which customers regularly repay their dues and which customers have delayed payments.
-
-To make this process easier, we implemented an AI-based credit risk analysis feature.
-
-The purpose of this feature is to analyze customer-related financial information and provide useful insights that help shopkeepers understand customer payment behavior.
-
-## 9.2 What Is Credit Risk Analysis?
-
-Credit risk analysis is the process of evaluating the possibility that a customer may not repay an outstanding amount on time.
-
-For example:
-
-- Customer A regularly pays on time.
-- Customer B sometimes delays payments.
-- Customer C has a large outstanding balance and a history of delayed payments.
-
-These customers may have different credit risk levels.
-
-Credit risk analysis helps shopkeepers understand these differences before making further credit decisions.
-
-## 9.3 Why Did We Add AI to Digital Khata?
-
-A normal digital ledger stores customer transactions, but it does not necessarily provide intelligent insights about customer payment behavior.
-
-We wanted to make the application more useful by analyzing existing customer and transaction information.
-
-The AI-based feature can help shopkeepers:
-
-- Understand customer payment patterns.
-- Identify customers who may require attention.
-- Review outstanding credit information.
-- Make more informed credit decisions.
-- Reduce the effort required for manual analysis.
-
-## 9.4 How Does It Work?
-
-The general workflow is:
-
-1. The shopkeeper selects a customer or opens the credit risk section.
-2. The frontend requests the relevant information from the backend.
-3. The backend retrieves the required customer and transaction information.
-4. The credit risk analysis logic processes the available information.
-5. The backend prepares the analysis result.
-6. The frontend displays the resulting insights.
-
-### Architecture Flow
-
-```text
-       CUSTOMER DATA
-             |
-             v
-      TRANSACTION HISTORY
-             |
-             v
-        FASTAPI BACKEND
-             |
-             v
-      CREDIT RISK ANALYSIS
-             |
-             v
-       ANALYSIS RESULT
-             |
-             v
-       NEXT.JS FRONTEND
-             |
-             v
-       SHOPKEEPER VIEW
-```
-
-## 9.5 What Information Can Be Useful?
-
-Credit risk analysis can use information such as:
-
-- Outstanding credit amount.
-- Previous credit transactions.
-- Payment history.
-- Repayment behavior.
-- Delayed payment patterns.
-
-The exact inputs and calculation method depend on the implemented analysis logic.
-
-## 9.6 Understanding Credit Risk Levels
-
-A credit risk system may categorize customers into different levels.
-
-For example:
-
-**Low Risk:** Customers who generally maintain good repayment behavior.
-
-**Medium Risk:** Customers whose repayment behavior requires some attention.
-
-**High Risk:** Customers who may have significant outstanding amounts or repeated repayment delays.
-
-These categories are useful for presenting analysis in a simple way.
-
-The actual classification criteria must be based on the project's implemented logic.
-
-## 9.7 How Does It Help Shopkeepers?
-
-Suppose a shopkeeper has 100 customers.
-
-Checking every customer's transaction history manually can take a lot of time.
-
-An analysis feature can help highlight customers whose payment behavior deserves attention.
-
-The shopkeeper can then review those records and make an informed decision about providing additional credit.
-
-AI-based analysis should support the shopkeeper's decision, not automatically determine whether a customer deserves credit.
-
-## 9.8 Benefits
-
-- Better understanding of customer repayment behavior.
-- Easier identification of customers requiring attention.
-- Reduced manual analysis.
-- More informed credit decisions.
-- Better use of existing transaction data.
-- Additional intelligence beyond basic ledger functionality.
-
-## 9.9 Final Summary
-
-In this module, we implemented AI-based credit risk analysis for Universal Digital Khata.
-
-The feature uses customer-related financial information to provide insights into repayment behavior and outstanding credit.
-
-It helps shopkeepers understand their customers' credit patterns and make more informed business decisions.
-
-**The main objective was to transform ordinary transaction records into useful credit-related insights.**
-
-
-# 10. AI Voice Transaction Entry
-
-## 10.1 Introduction
-
-One of the main goals of Universal Digital Khata is to make digital ledger management simple for shopkeepers.
-
-Many shopkeepers are comfortable speaking but may not prefer typing transaction details into an application.
-
-To improve the user experience, we implemented AI-powered voice transaction entry.
-
-This feature allows users to describe a transaction using their voice instead of manually entering every detail.
-
-For example, a shopkeeper can say:
-
-"Rahul ko 500 rupaye udhar diye."
-
-The application can process the spoken instruction and extract the relevant transaction information.
-
-## 10.2 Why Did We Need Voice-Based Transaction Entry?
-
-Traditional digital ledger applications often require users to:
-
-1. Open the application.
-2. Find the customer.
-3. Select the transaction type.
-4. Enter the amount.
-5. Save the transaction.
-
-For shopkeepers who handle multiple customers throughout the day, this process can become repetitive.
-
-Voice-based entry aims to reduce manual effort and make transaction recording more convenient.
-
-## 10.3 What Is AI Voice Transaction Entry?
-
-AI voice transaction entry is a feature that converts a spoken transaction instruction into structured information that the application can process.
-
-For example, a spoken sentence may contain:
-
-- Customer name.
-- Transaction amount.
-- Transaction type.
-- Transaction-related instruction.
-
-The application processes the voice input and extracts the information required to create a transaction.
-
-## 10.4 How Does It Work?
-
-The general workflow is:
-
-1. The shopkeeper activates the voice transaction feature.
-2. The application captures the spoken input.
-3. The voice input is processed through the configured speech and AI processing workflow.
-4. The backend receives the extracted or transcribed information.
-5. The transaction details are identified.
-6. The backend validates the customer and transaction information.
-7. The transaction is processed and stored.
-8. The frontend displays the result.
-
-### Architecture Flow
-
-```text
-        SHOPKEEPER
-             |
-             v
-        VOICE INPUT
-             |
-             v
-      SPEECH PROCESSING
-             |
-             v
-      AI INFORMATION EXTRACTION
-             |
-             v
-        FASTAPI BACKEND
-             |
-             v
-      CUSTOMER VALIDATION
-             |
-             v
-     TRANSACTION PROCESSING
-             |
-             v
-      NEON POSTGRESQL
-             |
-             v
-       RESULT TO FRONTEND
-```
-
-## 10.5 Role of AI in Voice Processing
-
-AI helps interpret natural language instructions.
-
-For example, consider this sentence:
-
-"Rahul ko 500 rupaye udhar diye."
-
-The application needs to identify the important information:
-
-| Information | Extracted value |
+| Field | Description |
 |---|---|
-| Customer | Rahul |
-| Amount | ₹500 |
-| Transaction meaning | Credit given |
+| `id` | Unique customer UUID |
+| `shop_id` | Reference to the associated shop |
+| `full_name` | Customer's full name |
+| `mobile_number` | Optional mobile number |
+| `address` | Optional address |
+| `notes` | Additional customer information |
+| `created_at` | Record creation timestamp |
+| `updated_at` | Last update timestamp |
 
-This is an example of converting natural language into structured transaction information.
+A composite unique constraint is defined on `shop_id` and `mobile_number`.
 
-The AI processing layer helps identify the meaning of the spoken instruction instead of requiring users to follow a strict command format.
+This allows different shops to maintain customers with the same mobile number while preventing duplicate mobile numbers within the same shop.
 
-## 10.6 Role of Groq API
+### Backend Implementation
 
-The project uses Groq APIs as part of its AI integration.
+**1. Customer API Routes**
 
-The configured AI provider helps process language-based instructions and extract meaningful information from user input.
+File: `backend/app/api/customer.py`
 
-The backend communicates with the AI service and uses the returned result in its transaction processing workflow.
+The customer router uses the `/customers` prefix.
 
-API credentials should be stored securely in environment variables rather than hard-coded into the source code.
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/customers/` | Create a customer |
+| GET | `/customers/` | Retrieve customers with pagination |
+| GET | `/customers/{customer_id}` | Retrieve a customer by ID |
+| PATCH | `/customers/{customer_id}` | Update customer details |
+| DELETE | `/customers/{customer_id}` | Delete a customer |
 
-## 10.7 Customer Validation
+All endpoints require authentication through `get_current_user`.
 
-Extracting a customer name from a voice instruction does not automatically mean that the correct customer has been identified.
+The customer listing endpoint supports `skip` and `limit` parameters. The backend validates pagination values and restricts the maximum page size to 100.
 
-For example, a shop may have two customers with similar names.
+**2. Customer Service Layer**
 
-Therefore, the backend needs to validate the extracted customer information before processing the transaction.
+File: `backend/app/services/customer.py`
 
-This is important because an incorrect customer match can create inaccurate financial records.
+The service layer implements the main customer operations.
 
-## 10.8 Why Is This Feature Useful?
+- `create_customer()` verifies that the user has registered a shop before creating a customer.
+- `get_all_customers()` retrieves customers belonging to the authenticated user's shop.
+- `get_customer_by_id()` retrieves a specific customer while checking shop ownership.
+- `update_customer()` updates only the supplied fields.
+- `delete_customer()` checks whether the customer has existing financial transactions before deletion.
 
-Voice transaction entry can help shopkeepers:
+The service normalizes mobile numbers by trimming whitespace and converting empty values to `None`.
 
-- Record transactions more quickly.
-- Reduce manual typing.
-- Interact with the application naturally.
-- Save time during busy business hours.
-- Make digital ledger management easier.
+It also checks for duplicate mobile numbers within the same shop.
 
-## 10.9 Important Considerations
+**Important deletion rule:** A customer cannot be deleted if transaction history exists. This protects financial records from being removed accidentally.
 
-Voice-based financial operations require careful validation.
+**3. Request Validation**
 
-The application should consider:
+File: `backend/app/schemas/customer.py`
 
-- Incorrect speech recognition.
-- Similar customer names.
-- Incorrect transaction amounts.
-- Missing information.
-- Network failures.
-- Repeated transaction requests.
+The module defines:
 
-For important financial operations, the extracted details should be validated before they are saved.
+- `CustomerCreate`
+- `CustomerUpdate`
+- `CustomerResponse`
 
-## 10.10 Final Summary
+The mobile number validator checks for a valid 10-digit Indian mobile number beginning with digits 6–9.
 
-In this module, we implemented AI-powered voice transaction entry.
+The full name is trimmed and validated. An address, when provided, must contain at least five characters.
 
-The feature allows shopkeepers to describe transactions using natural language instead of manually entering every detail.
+### Frontend Implementation
 
-The AI processing workflow helps extract meaningful transaction information, while the backend handles validation and transaction processing.
+**1. Customer API Integration**
 
-**The main objective was to make digital ledger management faster, easier, and more natural through voice interaction.**
+File: `frontend/src/features/customers/customer-api.ts`
 
-# 11. Multilingual AI Voice Transaction Processing
+This file provides reusable API functions:
 
-## 11.1 Introduction
+- `createCustomer()`
+- `getCustomers()`
+- `getCustomerById()`
+- `updateCustomer()`
+- `deleteCustomer()`
 
-Universal Digital Khata is designed for shopkeepers who may prefer communicating in their regional language rather than English.
+The functions communicate with FastAPI using the shared `apiRequest()` utility.
 
-In India, people commonly communicate in languages such as Hindi, Marathi, and other regional languages.
+**2. Customer Type Definitions**
 
-If a digital ledger application supports only English commands, some shopkeepers may find it difficult to use.
+File: `frontend/src/features/customers/types.ts`
 
-To make the application more accessible, we implemented multilingual AI voice transaction processing.
+TypeScript interfaces define customer creation, update, response, and list structures.
 
-This feature allows users to provide transaction instructions in different supported languages.
+**3. Customer Creation Form**
 
-## 11.2 Why Did We Need Multilingual Support?
+File: `frontend/src/features/customers/components/customer-form.tsx`
 
-India has many languages and regional communication styles.
+The customer form collects the customer's name, mobile number, address, and optional notes.
 
-For example, a shopkeeper may naturally say:
+It validates input on the frontend and submits the data using `createCustomer()`.
 
-- "Rahul ko 500 rupaye udhar diye."
-- "राहुलला ५०० रुपये उधार दिले."
-- "Rahul la 500 rupaye udhar dile."
+**4. Customer Edit Form**
 
-These sentences express a similar transaction instruction but use different languages or writing styles.
+File: `frontend/src/features/customers/components/customer-edit-form.tsx`
 
-We wanted the application to understand natural user instructions instead of forcing every shopkeeper to speak in English.
+The edit form loads the selected customer's existing information and allows the shop owner to update it.
 
-## 11.3 What Is Multilingual AI Processing?
+After a successful update, it passes the updated customer data back to the parent component.
 
-Multilingual AI processing allows an AI-based system to understand and process input provided in different languages.
+**5. Customer List**
 
-In our application, this capability is used for voice-based transaction instructions.
+File: `frontend/src/features/customers/components/customer-list.tsx`
 
-The system processes the spoken input and identifies the relevant transaction information.
+This component displays customer records and provides actions to:
 
-The extracted information can then be used by the backend to process the transaction.
+- View customer details
+- Edit customer information
+- Delete a customer
 
-## 11.4 How Does It Work?
+It also handles loading, error, and empty-list states.
 
-The general workflow is:
+**6. Customer Management Page**
 
-1. The shopkeeper speaks in a supported language.
-2. The application captures the voice input.
-3. The speech processing workflow converts the input into text or otherwise prepares it for language processing.
-4. The AI processing layer interprets the instruction.
-5. Relevant transaction information is extracted.
-6. The backend validates the customer and transaction details.
-7. The transaction is processed.
-8. The frontend displays the result.
+File: `frontend/src/app/customers/page.tsx`
 
-### Architecture Flow
+This page coordinates the customer management workflow.
 
-```text
-       SHOPKEEPER
-            |
-            v
-      REGIONAL LANGUAGE
-            |
-            v
-        VOICE INPUT
-            |
-            v
-     SPEECH PROCESSING
-            |
-            v
-     MULTILINGUAL AI
-            |
-            v
-   STRUCTURED TRANSACTION DATA
-            |
-            v
-       FASTAPI BACKEND
-            |
-            v
-    CUSTOMER VALIDATION
-            |
-            v
-   TRANSACTION PROCESSING
-            |
-            v
-     NEON POSTGRESQL
-            |
-            v
-      FRONTEND RESPONSE
-```
+It manages customer data, loading states, errors, creation, editing, and deletion.
 
-## 11.5 Example of Multilingual Processing
+After a successful operation, the local React state is updated so that the interface reflects the latest customer information.
 
-Consider the following instructions:
+### Complete Flow
 
-**Hindi:**
+1. The authenticated shop owner opens the Customers page.
+2. The frontend requests customer records from `/customers/`.
+3. The backend identifies the user's shop.
+4. The service retrieves only customers associated with that shop.
+5. The frontend displays the customer list.
+6. The user can create, update, view, or delete customer records.
+7. The backend validates ownership and business rules before modifying the database.
 
-"Rahul ko 500 rupaye udhar diye."
+### Key Learning
 
-**Marathi:**
+This module demonstrates CRUD operations, relational database design, shop-level data isolation, input validation, pagination, duplicate detection, and protection of financial records.
 
-"राहुलला ५०० रुपये उधार दिले."
+---
 
-**English:**
+## 7. Transaction Management Module
 
-"Give Rahul 500 rupees on credit."
+### Overview
 
-These instructions express the same basic transaction meaning.
+The Transaction Management Module is one of the core modules of Universal Digital Khata.
 
-The AI processing layer aims to identify the common structured information.
+It allows shop owners to record two important types of financial activities:
 
-Example:
+1. **Credit (Udhar):** When a shop owner gives goods or services to a customer on credit.
+2. **Payment:** When a customer makes a payment against their outstanding balance.
 
-| Field | Extracted information |
+The module maintains transaction history, calculates customer outstanding balances, updates customer behaviour statistics, and creates notification records.
+
+### Database Design
+
+File: `backend/app/models/transaction.py`
+
+The `Transaction` model represents individual financial transactions.
+
+Important fields include:
+
+| Field | Description |
 |---|---|
-| Customer name | Rahul |
-| Amount | ₹500 |
-| Transaction type | Credit |
+| `id` | Unique transaction UUID |
+| `idempotency_key` | Unique key for preventing duplicate requests |
+| `customer_id` | Associated customer |
+| `transaction_type` | Credit or payment |
+| `amount` | Transaction amount |
+| `description` | Transaction description |
+| `source` | Manual or voice |
+| `due_date` | Optional due date |
+| `allocation_processed` | Payment allocation processing flag |
+| `transaction_date` | Transaction timestamp |
+| `created_at` | Record creation timestamp |
 
-This demonstrates how different language inputs can be converted into a common transaction structure.
+The transaction type is represented by an enum:
 
-## 11.6 Handling Different Ways of Speaking
+- `CREDIT`
+- `PAYMENT`
 
-Users may express the same instruction in different ways.
+The transaction source is also represented by an enum:
 
-For example:
+- `MANUAL`
+- `VOICE`
 
-- Rahul ko 500 udhar diye.
-- Rahul ne 500 ka saman liya.
-- Rahul ka 500 rupaye baki hai.
+The amount uses SQLAlchemy's `Numeric(12, 2)` type to support monetary values with two decimal places.
 
-The application needs to understand the context of the instruction.
+### Backend Implementation
 
-This is where natural language processing becomes useful.
+**1. Transaction API Routes**
 
-The AI layer helps interpret the meaning of the instruction rather than depending only on exact keyword matching.
+File: `backend/app/api/transaction.py`
 
-## 11.7 Customer Matching Challenges
+The transaction router uses the `/transactions` prefix.
 
-Multilingual processing introduces additional challenges.
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/transactions/` | Create a transaction |
+| GET | `/transactions/customers/{customer_id}/balance` | Get customer outstanding balance |
+| GET | `/transactions/customers/{customer_id}/history` | Get customer transaction history |
 
-A customer name may be spoken or written in different ways.
+The POST endpoint accepts an optional `Idempotency-Key` HTTP header.
 
-For example:
+The balance endpoint returns the outstanding balance along with the customer ID and currency (`INR`).
 
-- Rahul
-- राहुल
-- Rahool
+The history endpoint supports pagination through `skip` and `limit`.
 
-These forms may refer to the same customer, depending on the shop's customer records.
+**2. Transaction Service Layer**
 
-Customer matching is important because the application must connect a transaction to the correct customer.
+File: `backend/app/services/transaction.py`
 
-Incorrect matching can create financial record errors.
-
-Therefore, customer validation is an important part of the processing workflow.
-
-## 11.8 Improvements in Multilingual Processing
-
-The project includes improvements to multilingual voice extraction and customer matching.
-
-The objective of these improvements is to make the system more reliable when users speak naturally or use different language variations.
-
-This is particularly important in real-world shop environments, where people may mix languages and use informal expressions.
-
-## 11.9 Benefits
-
-- Better accessibility for regional-language users.
-- Natural voice-based interaction.
-- Reduced dependency on English.
-- Easier transaction entry.
-- Support for different speaking styles.
-- Improved customer matching.
-- Better user experience for Indian shopkeepers.
-
-## 11.10 Final Summary
-
-In this module, we implemented multilingual AI voice transaction processing.
-
-The feature allows shopkeepers to provide transaction instructions in supported languages and uses AI-based language processing to identify the relevant transaction information.
-
-We also worked on improving multilingual extraction and customer matching.
-
-**The main objective was to make Universal Digital Khata accessible to shopkeepers who prefer using their own language for daily business activities.**
-
-
-# 12. Multilingual Voice Extraction and Customer Matching Improvements
-
-## 12.1 Introduction
-
-In Universal Digital Khata, shopkeepers can record transactions using natural-language voice instructions.
-
-However, processing voice instructions is not always straightforward.
-
-Users may speak in different languages, use informal words, mix languages, or pronounce customer names differently.
-
-For example:
-
-- Rahul ko 500 rupaye udhar diye.
-- राहुल को ५०० रुपये उधार दिए।
-- Rahul la 500 rupaye udhar dile.
-
-Although these instructions may express the same transaction, their sentence structures and language patterns are different.
-
-To improve the reliability of voice-based transactions, we worked on multilingual voice extraction and customer matching improvements.
-
-## 12.2 Why Were These Improvements Needed?
-
-A voice-based transaction system must correctly identify important information.
-
-For example:
-
-- Customer name.
-- Transaction amount.
-- Transaction type.
-- Transaction meaning.
-
-If the system extracts an incorrect customer name or amount, it may create an incorrect financial record.
-
-Therefore, improving information extraction and customer matching was important.
-
-## 12.3 What Is Information Extraction?
-
-Information extraction is the process of identifying useful information from unstructured text.
-
-For example, consider this instruction:
-
-"Rahul ko 500 rupaye udhar diye."
-
-The system needs to identify:
-
-| Field | Extracted information |
-|---|---|
-| Customer | Rahul |
-| Amount | ₹500 |
-| Transaction type | Credit |
-
-The original sentence is unstructured text, while the extracted information is structured data.
-
-This structured information can then be used by the backend transaction workflow.
-
-## 12.4 What Is Customer Matching?
-
-Customer matching is the process of identifying the correct customer record from the available customer information.
-
-For example, a shop may contain the following records:
-
-- Rahul Sharma
-- Rahul Verma
-- Rohit Sharma
-
-If the shopkeeper says "Rahul ko 500 diye", the system needs to identify the intended Rahul.
-
-This becomes more challenging when names are spoken differently or written in different scripts.
-
-## 12.5 Challenges in Multilingual Customer Matching
-
-Some common challenges include:
-
-**Different Scripts:** A name may appear in English or Devanagari.
-
-**Different Pronunciations:** Users may pronounce the same name differently.
-
-**Spelling Variations:** The same name may have different spellings.
-
-**Similar Names:** Multiple customers may have similar names.
-
-**Mixed Languages:** Users may combine Hindi, Marathi, and English in one sentence.
-
-These challenges make customer identification an important part of the voice transaction workflow.
-
-## 12.6 General Processing Workflow
-
-The improved processing workflow can be understood as follows:
-
-1. The shopkeeper provides a voice instruction.
-2. The speech processing workflow prepares the input.
-3. The multilingual processing layer interprets the instruction.
-4. Relevant transaction information is extracted.
-5. The customer name is matched against available customer records.
-6. The backend validates the extracted information.
-7. The transaction workflow processes the validated information.
-
-### Architecture Flow
-
-```text
-       VOICE INSTRUCTION
-              |
-              v
-       SPEECH PROCESSING
-              |
-              v
-      MULTILINGUAL EXTRACTION
-              |
-              v
-     STRUCTURED INFORMATION
-              |
-              v
-       CUSTOMER MATCHING
-              |
-              v
-       BACKEND VALIDATION
-              |
-              v
-      TRANSACTION PROCESSING
-```
-
-## 12.7 Why Is Validation Important?
-
-AI-generated information should not automatically be treated as correct.
-
-For example, if the AI extracts an amount of ₹5,000 instead of ₹500, the transaction may become incorrect.
-
-Similarly, matching a customer to the wrong record can affect financial history.
-
-Therefore, validation is important before processing financial transactions.
-
-## 12.8 Benefits
-
-- Better handling of multilingual instructions.
-- Improved extraction of transaction information.
-- Better customer identification.
-- Support for different pronunciations and spelling variations.
-- Reduced risk of incorrect customer selection.
-- More reliable voice-based transaction processing.
-
-## 12.9 Final Summary
-
-In this module, we improved multilingual voice information extraction and customer matching.
-
-The objective was to make the voice transaction workflow more reliable when shopkeepers use regional languages, mixed-language sentences, or different pronunciations.
-
-**The main objective was to improve the accuracy of converting natural-language instructions into structured transaction information.**
-
-
-# 13. Customer Credit Risk Dashboard
-
-## 13.1 Introduction
-
-Universal Digital Khata includes AI-based credit risk analysis to help shopkeepers understand customer payment behavior.
-
-However, analysis results are more useful when they are presented in a clear and understandable interface.
-
-To make these insights accessible, we implemented a Customer Credit Risk Dashboard.
-
-This dashboard provides a dedicated view for understanding customer-related credit risk information.
-
-## 13.2 Why Did We Need a Credit Risk Dashboard?
-
-A shopkeeper may have many customers with different payment histories.
-
-Checking each customer's transactions manually can be time-consuming.
-
-A dedicated dashboard helps organize customer credit information and makes it easier to review customers who may require attention.
-
-## 13.3 What Is a Customer Credit Risk Dashboard?
-
-A Customer Credit Risk Dashboard is a user interface that presents customer-related credit information and risk insights.
-
-It connects the backend credit risk analysis functionality with the frontend.
-
-Instead of presenting raw transaction records only, the dashboard aims to provide a more understandable view of customer credit information.
-
-## 13.4 How Does It Work?
-
-The general workflow is:
-
-1. The shopkeeper opens the credit risk dashboard.
-2. The frontend requests the required customer credit information.
-3. The backend identifies the authenticated user's permitted shop.
-4. The backend retrieves relevant customer and transaction information.
-5. Credit risk analysis results are prepared.
-6. The API returns the information to the frontend.
-7. The dashboard displays the available insights.
-
-### Architecture Flow
-
-```text
-       SHOPKEEPER
-            |
-            v
-    CREDIT RISK DASHBOARD
-            |
-            v
-        FASTAPI API
-            |
-            v
-     CUSTOMER INFORMATION
-            |
-            v
-    TRANSACTION INFORMATION
-            |
-            v
-     CREDIT RISK ANALYSIS
-            |
-            v
-       API RESPONSE
-            |
-            v
-     FRONTEND DISPLAY
-```
-
-## 13.5 Information Presented in the Dashboard
-
-A customer credit risk dashboard can present useful information such as:
-
-**Customer Information:** Helps identify the customer whose credit information is being reviewed.
-
-**Outstanding Credit:** Shows the amount currently owed by the customer, where available.
-
-**Payment History:** Helps review previous customer payments.
-
-**Credit Risk Information:** Presents the available risk assessment.
-
-**Customer Comparison:** Can help shopkeepers review differences in customer credit behavior when supported by the dashboard data.
-
-The exact metrics and visual components depend on the implemented dashboard response.
-
-## 13.6 Role of Frontend and Backend
-
-### Frontend Responsibilities
-
-- Display customer credit information.
-- Present available risk insights.
-- Organize information in a readable format.
-- Allow shopkeepers to access the credit risk section.
-
-### Backend Responsibilities
-
-- Validate API requests.
-- Enforce user and shop authorization.
-- Retrieve relevant customer and transaction data.
-- Provide credit risk information.
-- Return structured API responses.
-
-Separating these responsibilities makes the application easier to maintain.
-
-## 13.7 How Does It Help Shopkeepers?
-
-Suppose a shopkeeper has several customers with outstanding balances.
-
-Some customers regularly make payments, while others frequently delay payments.
-
-The dashboard helps the shopkeeper review available credit information in one place.
-
-This can support decisions such as:
-
-- Whether to review a customer's outstanding balance.
-- Which customers may need payment reminders.
-- Which customer accounts need closer attention.
-
-The dashboard provides decision-support information. The shopkeeper remains responsible for making the final business decision.
-
-## 13.8 Benefits
-
-- Centralized customer credit information.
-- Easier access to risk insights.
-- Better understanding of customer payment behavior.
-- Reduced manual checking.
-- Improved visibility of outstanding credit.
-- Better integration between AI analysis and the user interface.
-
-## 13.9 Final Summary
-
-In this module, we implemented a Customer Credit Risk Dashboard to present customer-related credit risk information in a more understandable way.
-
-It connects the backend analysis functionality with the frontend interface and helps shopkeepers review available customer credit insights.
-
-**The main objective was to make AI-based credit information useful and accessible through a dedicated dashboard.**
-
-
-# 14. Customer Notification and Payment Reminder System
-
-## 14.1 Introduction
-
-In a traditional shop, shopkeepers often need to personally remind customers about pending payments.
-
-When the number of customers increases, remembering every outstanding payment becomes difficult.
-
-To make this process easier, we implemented a Customer Notification and Payment Reminder System in Universal Digital Khata.
-
-This functionality supports communication between shopkeepers and customers regarding outstanding payments.
-
-## 14.2 Why Did We Need a Notification System?
-
-A digital ledger should not only maintain transaction records but also help shopkeepers manage customer communication.
-
-For example:
-
-- A customer has an outstanding balance.
-- The shopkeeper wants to remind the customer about the pending payment.
-- The application helps initiate the reminder process.
-
-This reduces the need to remember and manually manage every reminder.
-
-## 14.3 What Is a Payment Reminder?
-
-A payment reminder is a message that informs a customer about an outstanding amount or pending payment.
-
-For example:
-
-"Your payment of ₹500 is pending. Please contact the shop for payment details."
-
-The exact message content depends on the notification functionality.
-
-## 14.4 How Does the Reminder System Work?
-
-The general workflow is:
-
-1. The shopkeeper opens the customer or reminder section.
-2. The shopkeeper selects the relevant customer.
-3. The reminder request is submitted to the backend.
-4. FastAPI processes the request.
-5. The backend retrieves the required customer and payment information.
-6. The notification functionality prepares the reminder.
-7. The configured communication mechanism handles delivery.
-8. The application provides the appropriate result.
-
-### Architecture Flow
-
-```text
-       SHOPKEEPER
-            |
-            v
-      CUSTOMER SECTION
-            |
-            v
-      REMINDER REQUEST
-            |
-            v
-        FASTAPI API
-            |
-            v
-     CUSTOMER / PAYMENT DATA
-            |
-            v
-     NOTIFICATION PROCESSING
-            |
-            v
-   CONFIGURED DELIVERY CHANNEL
-            |
-            v
-         CUSTOMER
-```
-
-## 14.5 Role of Customer Information
-
-Customer information is important for sending reminders to the correct person.
-
-For example, the application may need:
-
-- Customer identity.
-- Customer contact information.
-- Relevant outstanding amount.
-- Reminder message information.
-
-The backend must use the correct customer record and verify the relevant shop association before processing a reminder.
-
-## 14.6 Why Is Notification Functionality Useful?
-
-Without a reminder system, shopkeepers may need to:
-
-- Search for customer contact details.
-- Calculate pending amounts manually.
-- Write reminder messages.
-- Send reminders separately.
-
-An integrated reminder workflow can reduce these manual steps.
-
-## 14.7 Integration with Transaction Management
-
-The reminder system is closely connected to Transaction Management.
-
-Transaction Management maintains credit and payment information.
-
-The reminder system can use relevant outstanding payment information to support customer communication.
-
-For example:
-
-- A customer has ₹1,000 outstanding.
-- The customer makes a payment of ₹400.
-- The remaining amount is ₹600.
-
-A reminder should use the appropriate current outstanding information rather than an outdated amount.
-
-## 14.8 Important Considerations
-
-A notification system should consider:
-
-- Correct customer contact information.
-- Correct outstanding amount.
-- Avoiding unnecessary repeated reminders.
-- Appropriate message content.
-- Delivery failures.
-- Customer privacy.
-- Shop ownership and authorization.
-
-The application should not treat a reminder request as proof that the message was successfully delivered. Delivery status depends on the configured communication provider.
-
-## 14.9 Benefits
-
-- Easier payment reminder management.
-- Better communication with customers.
-- Reduced manual follow-up work.
-- Integration with customer records.
-- Integration with transaction information.
-- Improved digital ledger experience.
-
-## 14.10 Final Summary
-
-In this module, we implemented customer notification and payment reminder functionality.
-
-The system supports shopkeepers in initiating reminders using customer and payment-related information.
-
-It connects customer management and transaction management with customer communication functionality.
-
-**The main objective was to reduce manual payment follow-up work and make customer communication easier.**
-
-
-# 15. Multilingual Voice Processing Improvements
-
-## 15.1 Introduction
-
-Universal Digital Khata supports voice-based transaction entry so that shopkeepers can record transactions using natural language.
-
-However, real-world users do not always speak in a fixed format. They may use different languages, regional expressions, mixed-language sentences, and different pronunciations.
-
-To improve the voice transaction experience, we worked on improving multilingual voice processing.
-
-The main focus was to make the system better at understanding natural transaction instructions and extracting the required information.
-
-## 15.2 Why Were Improvements Needed?
-
-A voice processing system may face several challenges:
-
-- Different ways of expressing the same transaction.
-- Regional language variations.
-- Mixed Hindi, Marathi, and English sentences.
-- Different pronunciations of customer names.
-- Incorrectly recognized amounts.
-- Incomplete transaction instructions.
-
-These issues can affect the accuracy of transaction processing.
-
-## 15.3 Natural Language Variations
-
-Consider these examples:
-
-- Rahul ko 500 rupaye udhar diye.
-- Rahul ko paanch sau rupaye diye.
-- राहुल को ५०० रुपये उधार दिए।
-- राहुलला ५०० रुपये उधार दिले.
-
-These instructions may represent similar transaction information.
-
-The system needs to understand the meaning rather than depend only on an exact sentence format.
-
-## 15.4 What Did We Improve?
-
-The project includes improvements to multilingual voice transaction processing.
-
-The objectives include:
-
-1. Better interpretation of natural-language instructions.
-2. Improved extraction of transaction information.
-3. Better handling of different language expressions.
-4. Improved customer name matching.
-5. More reliable transaction processing.
-
-## 15.5 General Processing Workflow
-
-```text
-       VOICE INPUT
-            |
-            v
-      SPEECH PROCESSING
-            |
-            v
-    MULTILINGUAL AI PROCESSING
-            |
-            v
-   TRANSACTION INFORMATION
-         EXTRACTION
-            |
-            v
-     CUSTOMER MATCHING
-            |
-            v
-      DATA VALIDATION
-            |
-            v
-    TRANSACTION PROCESSING
-```
-
-## 15.6 Why Is Accuracy Important?
-
-A voice transaction system handles financial information.
-
-If the system incorrectly identifies a customer or amount, it can create inaccurate records.
-
-For example, confusing ₹500 with ₹5,000 can significantly affect a customer's account.
-
-Therefore, extracted information must be validated before it is used to create financial records.
-
-## 15.7 Benefits
-
-- Better multilingual understanding.
-- Improved natural-language processing.
-- More reliable transaction information extraction.
-- Better handling of regional expressions.
-- Improved customer matching.
-- Better user experience for shopkeepers.
-
-## 15.8 Final Summary
-
-In this module, we improved multilingual voice transaction processing to handle natural-language variations more effectively.
-
-The focus was on improving information extraction, customer matching, and the reliability of voice-based transaction workflows.
-
-**The main objective was to make voice-based digital ledger operations more accurate and convenient for regional-language users.**
-
-
-
-# 16. Transaction Idempotency and Customer Validation
-
-## 16.1 Introduction
-
-Transaction Management is a critical part of Universal Digital Khata because it handles customer credit and payment records.
-
-In financial applications, duplicate transactions and incorrect customer selection can create serious problems.
-
-For example, if a transaction request is submitted twice due to a network issue, the application may accidentally record the same transaction more than once.
-
-To improve reliability, we implemented transaction idempotency support and customer validation.
-
-## 16.2 What Is Transaction Idempotency?
-
-Idempotency is a concept used in API development to prevent repeated requests from creating duplicate operations.
-
-In our application, transaction idempotency helps identify repeated submissions of the same logical transaction request.
-
-For example:
-
-```text
-First request:
-Transaction Amount = ₹500
-Idempotency Key = ABC123
-
-Repeated request:
-Transaction Amount = ₹500
-Idempotency Key = ABC123
-```
-
-The backend can use the same idempotency key to recognize that the request has already been processed.
-
-This helps prevent duplicate transaction creation.
-
-## 16.3 Why Is Idempotency Important?
-
-Duplicate requests can happen because of:
-
-- Slow internet connections.
-- Network interruptions.
-- Repeated button clicks.
-- Automatic API retries.
-- Frontend request resubmissions.
-
-In a financial application, processing the same logical transaction multiple times can produce incorrect customer balances.
-
-Idempotency helps reduce this risk.
-
-## 16.4 How Does It Work?
-
-The general workflow is:
-
-1. The frontend submits a transaction request with an idempotency key.
-2. The backend receives the request.
-3. The backend checks whether the key has already been processed.
-4. If it is a new request, the transaction is processed.
-5. If it is a repeated request, duplicate processing is prevented according to the implemented logic.
-6. The backend returns the appropriate response.
-
-### Architecture Flow
-
-```text
-       TRANSACTION REQUEST
-               |
-               v
-        IDEMPOTENCY KEY
-               |
-               v
-        FASTAPI BACKEND
-               |
-               v
-        CHECK REQUEST KEY
-               |
-          +----+----+
-          |         |
-          v         v
-       NEW KEY   EXISTING KEY
-          |         |
-          v         v
-      PROCESS    PREVENT
-    TRANSACTION  DUPLICATE
-          |         |
-          +----+----+
-               |
-               v
-          API RESPONSE
-```
-
-## 16.5 What Is Customer Validation?
-
-Customer validation ensures that the customer associated with a transaction is valid and belongs to the appropriate shop.
-
-For example, suppose a shopkeeper selects a customer and records a credit transaction.
-
-Before processing the transaction, the backend should verify that:
-
-- The customer record exists.
-- The customer is associated with the correct shop.
-- The authenticated user has permission to access that customer.
-
-This helps prevent transactions from being recorded against invalid or unauthorized customer records.
-
-## 16.6 Why Is Customer Validation Important?
-
-Customer validation protects the accuracy and integrity of financial records.
-
-Without proper validation:
-
-- A transaction may reference a non-existing customer.
-- A transaction may be associated with the wrong shop.
-- Unauthorized users may attempt to access another shop's records.
-
-Backend validation helps prevent these problems.
-
-## 16.7 Combined Transaction Processing Workflow
-
-```text
-      TRANSACTION REQUEST
-               |
-               v
-        AUTHENTICATION
-               |
-               v
-        CUSTOMER VALIDATION
-               |
-               v
-       IDEMPOTENCY CHECK
-               |
-               v
-       TRANSACTION LOGIC
-               |
-               v
-       DATABASE OPERATION
-               |
-               v
-          API RESPONSE
-```
-
-## 16.8 Benefits
-
-- Reduced duplicate transaction processing.
-- Better API reliability.
-- Improved financial record accuracy.
-- Better customer validation.
-- Stronger data integrity.
-- Better protection against invalid transaction requests.
-
-## 16.9 Final Summary
-
-In this module, we implemented transaction idempotency support and customer validation.
-
-Idempotency helps prevent repeated transaction requests from creating duplicate records, while customer validation ensures that transactions are associated with valid and permitted customer records.
-
-**The main objective was to make financial transaction processing more reliable and protect the accuracy of customer records.**
-
-
-
-# 17. Responsive Workspace Layout and Authentication Flow
-
-## 17.1 Introduction
-
-Universal Digital Khata is designed for shopkeepers who may use different devices to manage their business records.
-
-Some users may access the application through desktop computers, while others may use mobile phones or tablets.
-
-To provide a consistent experience across different screen sizes, we implemented a responsive workspace layout.
-
-We also worked on improving the authentication flow to provide a better user experience.
-
-## 17.2 What Is a Responsive Layout?
-
-A responsive layout is a user interface that adjusts its structure and appearance according to the device's screen size.
-
-For example:
-
-- Desktop users may see a wider workspace.
-- Tablet users may see a more compact layout.
-- Mobile users may see a vertically arranged interface.
-
-The objective is to make the application usable without requiring a separate website for every device.
-
-## 17.3 Why Did We Need Responsive Design?
-
-Shopkeepers may need to access their customer and transaction information while working in their shops.
-
-A desktop-only interface would make the application less convenient for users who prefer mobile devices.
-
-Responsive design helps improve:
-
-- Mobile usability.
-- Navigation.
-- Content readability.
-- Accessibility.
-- Overall user experience.
-
-## 17.4 What Is a Workspace Layout?
-
-A workspace layout provides a consistent structure for the main application interface.
-
-A typical workspace may contain:
-
-- Navigation section.
-- Main content area.
-- Dashboard section.
-- Customer management area.
-- Transaction-related pages.
-- Other application features.
-
-Using a shared layout helps maintain a consistent appearance across different application pages.
-
-## 17.5 Authentication Flow
-
-Authentication flow controls how users enter and access the application.
-
-A typical flow includes:
-
-1. The user opens the application.
-2. The application checks the user's authentication state.
-3. Unauthenticated users are directed to the login experience.
-4. Authenticated users can access permitted workspace pages.
-5. Protected operations are verified by the backend.
-
-The frontend experience and backend authorization checks work together to protect application resources.
-
-## 17.6 General Architecture Flow
-
-```text
-         USER OPENS APP
-                |
-                v
-        AUTHENTICATION CHECK
-                |
-          +-----+-----+
-          |           |
-          v           v
-     UNAUTHENTICATED  AUTHENTICATED
-          |           |
-          v           v
-       LOGIN       WORKSPACE
-                      |
-                      v
-                APPLICATION PAGES
-```
-
-## 17.7 Why Did We Separate Layout and Page Content?
-
-A shared workspace layout avoids repeating the same navigation and structural components on every page.
-
-It also makes future interface changes easier.
-
-For example, updating the shared navigation structure can improve the experience across multiple pages.
-
-This approach supports better frontend code organization and maintainability.
-
-## 17.8 Benefits
-
-- Consistent application layout.
-- Better mobile and desktop experience.
-- Improved navigation.
-- Better authentication experience.
-- Reusable frontend structure.
-- Easier maintenance.
-- Better user experience.
-
-## 17.9 Final Summary
-
-In this module, we implemented a responsive workspace layout and improved the authentication flow.
-
-The responsive layout helps the application adapt to different screen sizes, while the authentication flow provides a structured experience for accessing the workspace.
-
-**The main objective was to create a consistent, responsive, and user-friendly application interface.**
-
-
-
-# 18. AI Assistant for Voice and Text Transactions
-
-## 18.1 Introduction
-
-Universal Digital Khata includes AI-powered functionality to simplify transaction entry.
-
-Initially, voice-based transaction entry allows shopkeepers to speak their transaction instructions.
-
-We extended this concept with an AI Assistant that supports voice and text-based transaction interactions.
-
-This provides users with a more flexible way to communicate transaction instructions to the application.
-
-## 18.2 What Is an AI Assistant?
-
-An AI Assistant is a software feature that accepts natural-language input and helps users perform supported tasks.
-
-In our project, the assistant focuses on transaction-related interactions.
-
-For example, users can provide instructions such as:
-
-- "Rahul ko 500 rupaye udhar diye."
-- "Add 300 rupees payment from Amit."
-- "Rahul ka transaction record karo."
-
-The assistant processes the instruction and helps prepare the relevant transaction information.
-
-## 18.3 Why Did We Add Text and Voice Support?
-
-Different users have different interaction preferences.
-
-Some users may prefer speaking, while others may prefer typing.
-
-Supporting both methods makes the application more flexible.
-
-**Voice Input:** Useful when the shopkeeper wants to speak naturally.
-
-**Text Input:** Useful when speaking is inconvenient or when the user prefers typing.
-
-Both interaction methods can connect to the transaction processing workflow.
-
-## 18.4 How Does It Work?
-
-The general workflow is:
-
-1. The user opens the AI Assistant.
-2. The user provides a voice or text instruction.
-3. The input is prepared for AI processing.
-4. The AI processing layer interprets the instruction.
-5. Relevant transaction information is extracted.
-6. The backend validates the customer and transaction details.
-7. The transaction workflow processes the validated request.
-8. The frontend displays the result.
-
-### Architecture Flow
-
-```text
-          USER
-            |
-            v
-      AI ASSISTANT
-            |
-       +----+----+
-       |         |
-       v         v
-    VOICE      TEXT
-     INPUT     INPUT
-       |         |
-       +----+----+
-            |
-            v
-       AI PROCESSING
-            |
-            v
-    INFORMATION EXTRACTION
-            |
-            v
-     BACKEND VALIDATION
-            |
-            v
-    TRANSACTION PROCESSING
-            |
-            v
-       DATABASE
-```
-
-## 18.5 Role of AI
-
-The AI processing layer helps understand natural-language instructions.
-
-For example:
-
-"Rahul ko 500 rupaye udhar diye."
-
-The system needs to identify:
-
-| Field | Value |
-|---|---|
-| Customer | Rahul |
-| Amount | ₹500 |
-| Transaction type | Credit |
-
-The extracted information can then be passed to the backend for validation and processing.
-
-## 18.6 Role of FastAPI
-
-FastAPI acts as the backend layer for handling assistant-related requests.
+The `create_transaction()` function handles the main transaction workflow.
 
 Its responsibilities include:
 
-- Receiving requests from the frontend.
-- Processing the required business logic.
-- Validating transaction information.
-- Connecting with the AI integration.
-- Coordinating transaction processing.
-- Returning API responses.
+- Finding the authenticated user's shop.
+- Verifying that the selected customer belongs to that shop.
+- Checking whether an idempotency key has already been processed.
+- Creating a credit or payment transaction.
+- Updating customer behaviour statistics.
+- Allocating payments to outstanding credits.
+- Creating a pending notification record.
+- Committing the related database changes.
 
-## 18.7 Why Is Validation Necessary?
+**3. Customer Behaviour Updates**
 
-An AI Assistant may interpret an instruction incorrectly.
+When a transaction is created, the service retrieves the customer's behaviour record.
 
-For example:
+If no record exists, it creates one.
 
-- It may identify the wrong customer.
-- It may extract an incorrect amount.
-- It may misunderstand credit and payment instructions.
-- It may receive an incomplete instruction.
+For every new transaction, it updates the total transaction count.
 
-Therefore, the backend must validate the extracted information before creating financial records.
+For a credit transaction, it updates:
 
-## 18.8 Benefits
+- Total credit transaction count
+- Total credit amount
 
-- Voice-based transaction interaction.
-- Text-based transaction interaction.
-- Natural-language communication.
-- Reduced manual data entry.
-- Flexible user experience.
-- Integration with existing transaction management.
-- Improved accessibility.
+For a payment transaction, it updates:
 
-## 18.9 Final Summary
+- Total payment transaction count
+- Total payment amount
 
-In this module, we implemented an AI Assistant that supports voice and text-based transaction interactions.
+These statistics can support further customer analytics and credit-risk assessment.
 
-The assistant helps users provide natural-language transaction instructions, while the backend handles validation and transaction processing.
+**4. Automatic Payment Allocation**
 
-**The main objective was to provide a flexible AI-powered interface for recording business transactions.**
+The transaction service integrates with:
+
+`backend/app/services/repayment.py`
+
+When a payment is recorded, the service calls `allocate_payment_to_credits()`.
+
+This function is responsible for allocating the payment against outstanding credit records.
+
+This separates payment allocation logic from the main transaction creation logic.
+
+**5. Notification Creation**
+
+After preparing the transaction, the service creates a pending notification record.
+
+For credit transactions, the notification type is `CREDIT_ADDED`.
+
+For payment transactions, the notification type is `PAYMENT_RECEIVED`.
+
+The transaction, customer behaviour updates, and notification record are committed together.
+
+### Outstanding Balance Calculation
+
+The service calculates the outstanding balance using SQL aggregation.
+
+The business logic is:
+
+```text
+Outstanding Balance = Total Credit - Total Payments
+```
+
+In the SQLAlchemy query, credit amounts are treated as positive values and payment amounts as negative values.
+
+The result is returned as a Decimal value rounded to two decimal places.
+
+### Idempotency and Duplicate Prevention
+
+Financial transactions must not be recorded multiple times because of repeated requests.
+
+The backend supports an optional idempotency key.
+
+File: `backend/app/models/transaction.py`
+
+The `idempotency_key` column has a unique constraint.
+
+File: `backend/app/services/transaction.py`
+
+Before creating a transaction, the service checks whether the key has already been used.
+
+If an existing transaction is found, the service compares its customer, transaction type, amount, description, due date, and source with the incoming request.
+
+- If the details match, the existing transaction is returned.
+- If the details differ, the request is rejected.
+- If concurrent requests cause a database integrity error, the service rolls back and checks whether the transaction was already created.
+
+Frontend support:
+
+- `frontend/src/features/transactions/transaction-api.ts` accepts an optional idempotency key and sends it through the `Idempotency-Key` header.
+- `frontend/src/lib/idempotency.ts` provides `generateIdempotencyKey()` using `crypto.randomUUID()`.
+
+The standard manual transaction form currently calls `createTransaction()` without supplying this optional key. The API and backend nevertheless support idempotency for callers that provide one.
+
+### Frontend Implementation
+
+**1. Transaction API**
+
+File: `frontend/src/features/transactions/transaction-api.ts`
+
+This file provides:
+
+- `createTransaction()`
+- `getCustomerBalance()`
+- `getCustomerTransactionHistory()`
+
+**2. Transaction Form**
+
+File: `frontend/src/features/transactions/components/transaction-form.tsx`
+
+The form allows the shop owner to select between:
+
+- Give Credit (Udhar)
+- Receive Payment
+
+It collects the amount and optional description.
+
+A due date can be assigned to credit transactions. The frontend validates that the amount is greater than zero before sending the request.
+
+After a successful transaction, the form resets its fields and informs the parent component through `onCreated()`.
+
+**3. Transaction History**
+
+File: `frontend/src/features/transactions/components/transaction-history.tsx`
+
+This component displays transaction records with:
+
+- Transaction type
+- Amount
+- Description
+- Transaction date
+- Due date, when available
+- Transaction source
+
+It formats monetary values using the Indian currency locale (`en-IN`) and displays credit and payment records with different visual indicators.
+
+**4. Type Definitions**
+
+File: `frontend/src/features/transactions/types.ts`
+
+The TypeScript interfaces define transaction creation data, transaction responses, customer balance, and transaction history.
+
+### Complete Flow
+
+1. The shop owner selects a customer.
+2. The owner chooses Credit or Payment.
+3. The owner enters the amount and optional details.
+4. The frontend sends a POST request to `/transactions/`.
+5. The backend validates the authenticated user's shop and customer ownership.
+6. The service creates the transaction and updates customer behaviour statistics.
+7. If the transaction is a payment, the repayment allocation service is called.
+8. A pending notification record is created.
+9. The database changes are committed.
+10. The API returns the created transaction.
+
+### Key Learning
+
+This module demonstrates financial transaction modelling, Decimal-based monetary calculations, SQL aggregation, database transaction handling, idempotency support, repayment allocation, and integration between multiple backend services.
+
+---
+
+## 8. Dashboard Analytics Module
+
+### Overview
+
+The Dashboard Analytics Module provides shop owners with a quick overview of their business activities.
+
+Instead of checking individual customer records and transaction histories, users can view important business statistics from a single dashboard.
+
+The dashboard displays:
+
+- Total customers
+- Total transactions
+- Total credit amount
+- Total payments received
+- Outstanding balance
+- Five most recent transactions
+
+### Backend Implementation
+
+**1. Dashboard API**
+
+File: `backend/app/api/dashboard.py`
+
+The module exposes one authenticated endpoint:
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/dashboard/summary` | Retrieve shop dashboard analytics |
+
+The endpoint uses `get_current_user` to identify the authenticated shop owner and passes the request to the dashboard service.
+
+**2. Dashboard Service Layer**
+
+File: `backend/app/services/dashboard.py`
+
+The `get_dashboard_summary()` function performs the analytics calculations.
+
+Its workflow is:
+
+**Step 1: Identify the Shop**
+
+The service retrieves the shop ID associated with the authenticated user.
+
+If the user has not registered a shop, it raises a `ValueError`.
+
+**Step 2: Count Total Customers**
+
+The service uses SQLAlchemy's `COUNT()` function to calculate the total number of customers belonging to the shop.
+
+**Step 3: Calculate Transaction Statistics**
+
+The service uses SQL aggregation functions such as:
+
+- `COUNT()`
+- `SUM()`
+- `COALESCE()`
+- `CASE`
+
+It calculates:
+
+- Total transaction count
+- Total credit amount
+- Total payment amount
+- Outstanding balance
+
+The outstanding balance is calculated by treating credits as positive values and payments as negative values.
+
+**Step 4: Retrieve Recent Transactions**
+
+The service joins the transactions and customers tables to retrieve transaction details along with customer names.
+
+It sorts transactions by transaction date and creation timestamp in descending order and retrieves the latest five records.
+
+**Step 5: Return Dashboard Data**
+
+The service constructs a `DashboardSummary` response containing all calculated statistics and recent transaction records.
+
+### Dashboard Response Schema
+
+File: `backend/app/schemas/dashboard.py`
+
+Two Pydantic schemas define the response structure:
+
+**`RecentTransactionResponse`**
+
+Contains:
+
+- Transaction ID
+- Customer ID
+- Customer name
+- Transaction type
+- Amount
+- Description
+- Transaction date
+
+**`DashboardSummary`**
+
+Contains:
+
+- `total_customers`
+- `total_transactions`
+- `total_credit_amount`
+- `total_payment_amount`
+- `outstanding_balance`
+- `recent_transactions`
+
+This ensures that the frontend receives a structured and predictable response.
+
+### Frontend Implementation
+
+**1. Dashboard API Integration**
+
+File: `frontend/src/features/dashboard/dashboard-api.ts`
+
+The `getDashboardSummary()` function sends an authenticated GET request to `/dashboard/summary`.
+
+**2. Dashboard Type Definitions**
+
+File: `frontend/src/features/dashboard/types.ts`
+
+The frontend defines TypeScript interfaces for dashboard statistics and recent transactions.
+
+The `Money` type supports both numbers and strings, allowing monetary values returned by the backend to be handled consistently.
+
+**3. Summary Cards**
+
+File: `frontend/src/features/dashboard/components/summary-card.tsx`
+
+The reusable `SummaryCard` component displays a title, value, and description.
+
+The dashboard uses it to display total customers, total transactions, total credit, and total payments.
+
+**4. Recent Transactions Component**
+
+File: `frontend/src/features/dashboard/components/recent-transactions.tsx`
+
+This component displays the latest five transactions in a table.
+
+It shows customer name, transaction type, transaction date, amount, and optional description.
+
+Amounts are formatted using the Indian currency locale.
+
+**5. Dashboard Page**
+
+File: `frontend/src/app/dashboard/page.tsx`
+
+The dashboard page manages:
+
+- Authentication checks
+- Dashboard data fetching
+- Loading states
+- Error handling
+- Summary card rendering
+- Outstanding balance display
+- Recent transaction display
+
+It also provides navigation links to the Notifications and Customers pages.
+
+### Complete Flow
+
+1. The authenticated user opens the dashboard.
+2. The frontend calls `/dashboard/summary`.
+3. The backend identifies the user's shop.
+4. SQLAlchemy executes aggregate queries to calculate business statistics.
+5. The backend retrieves the latest five transactions with customer names.
+6. The response is validated using the dashboard Pydantic schema.
+7. The frontend receives the summary data.
+8. React renders the summary cards, outstanding balance, and recent transaction table.
+
+### Key Learning
+
+This module demonstrates SQL aggregate queries, conditional calculations using `CASE`, table joins, reusable React components, API-driven dashboards, and efficient retrieval of business analytics.
+
+---
+
+## Batch 2 – Modules Covered
+
+| Module | Feature | Status in Codebase |
+|---|---|---|
+| 5 | Shop Management | Implemented |
+| 6 | Customer Management | Implemented |
+| 7 | Transaction Management | Implemented |
+| 8 | Dashboard Analytics | Implemented |
+
+These modules establish the core business workflow of Universal Digital Khata: registering a shop, managing customers, recording credit and payments, and monitoring business performance.
 
 
-# 19. Customer Creation and Form
 
-## 19.1 Introduction
 
-Customer Management is an important part of Universal Digital Khata.
 
-Before recording credit or payment transactions, shopkeepers need to maintain customer records.
 
-To make customer onboarding easier, we implemented a Customer Creation Form in the frontend.
+# 9. AI-Based Customer Credit Risk Assessment & FIFO Repayment Allocation
 
-This form provides an interface for entering customer information and submitting it to the backend.
+## Overview
 
-## 19.2 Why Did We Need a Customer Creation Form?
+This module introduces two important financial intelligence capabilities to Universal Digital Khata:
 
-A digital ledger application needs a simple way to add customers.
+1. Customer Credit Risk Assessment
+2. FIFO-Based Payment Allocation
 
-Without a customer creation feature, shopkeepers would not be able to organize customer-specific transaction records effectively.
+The credit risk assessment analyzes a customer's historical transaction behaviour to understand their repayment patterns.
 
-A dedicated form makes it easier to enter customer details and connect them with the appropriate shop.
+The FIFO repayment allocation system automatically distributes received payments against the customer's oldest outstanding credit transactions.
 
-## 19.3 What Is a Customer Creation Form?
+Together, these features help shop owners understand customer repayment behaviour and maintain organized financial records.
 
-A customer creation form is a frontend interface that collects the information required to create a customer record.
+## Part A: Customer Credit Risk Assessment
 
-The user enters the available customer details and submits the form.
+### Architecture and Design
 
-The frontend sends the information to the Customer Management API.
+The credit risk assessment follows a service-oriented architecture.
 
-The backend validates the request and stores the customer information in the database.
-
-## 19.4 Customer Creation Workflow
-
-1. The shopkeeper opens the customer section.
-2. The shopkeeper selects the add customer option.
-3. The customer form is displayed.
-4. The user enters the required information.
-5. The frontend validates the form where applicable.
-6. The frontend sends the request to FastAPI.
-7. The backend validates the submitted data.
-8. The customer record is stored in PostgreSQL.
-9. The frontend displays the operation result.
+The API layer receives an authenticated request, the service layer retrieves transaction history, the feature extraction layer calculates financial indicators, and the risk assessment layer generates an explainable risk classification.
 
 ### Architecture Flow
 
-```text
-      SHOPKEEPER
-           |
-           v
-    CUSTOMER FORM
-           |
-           v
-   FRONTEND VALIDATION
-           |
-           v
-      FASTAPI API
-           |
-           v
-    BACKEND VALIDATION
-           |
-           v
-      SQLALCHEMY ORM
-           |
-           v
-    NEON POSTGRESQL
-           |
-           v
-       API RESPONSE
-           |
-           v
-     CUSTOMER LIST
+```mermaid
+flowchart TD
+    A[Shop Owner] --> B[Frontend Customer Risk Dashboard]
+    B --> C[GET /credit-risk/customers/customer_id]
+    C --> D[FastAPI Credit Risk Router]
+    D --> E[Authentication and Shop Ownership Validation]
+    E --> F[Credit Risk Service]
+    F --> G[Fetch Customer Transaction History]
+    G --> H[Feature Extraction]
+    H --> I[Customer Data Validation]
+    I --> J[Rule-Based Risk Assessment]
+    J --> K[Generate Explanation and Recommendation]
+    K --> L[Credit Risk Response Schema]
+    L --> B
 ```
 
-## 19.5 Role of Frontend
+### Backend Implementation
 
-The frontend is responsible for:
+**1. Credit Risk API**
 
-- Displaying the customer creation form.
-- Collecting customer information.
-- Handling user input.
-- Providing basic form validation.
-- Submitting the request to the backend.
-- Displaying success or error feedback.
+File: `backend/app/api/credit_risk.py`
 
-## 19.6 Role of Backend
+The module exposes the following endpoint:
 
-The backend is responsible for:
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/credit-risk/customers/{customer_id}` | Analyze a customer's credit risk |
 
-- Receiving customer creation requests.
-- Validating incoming data.
-- Checking the authenticated user's permissions.
-- Associating the customer with the appropriate shop.
-- Creating the customer record.
-- Returning the API response.
+The endpoint uses the authenticated user dependency and passes the customer ID, current user, and database session to the credit risk service.
 
-Backend validation is important because frontend validation alone cannot protect database operations.
+**2. Credit Risk Service**
 
-## 19.7 Why Is Form Validation Important?
+File: `backend/app/services/credit_risk.py`
 
-Form validation helps prevent incorrect or incomplete customer information.
+The main function is:
 
-For example:
+`analyze_customer_credit_risk()`
 
-- Required information should be provided.
-- Contact information should follow the expected format.
-- Invalid requests should be rejected.
-- The user should receive appropriate error feedback.
+Its responsibilities include:
 
-This improves data quality and the overall user experience.
+- Verifying that the customer belongs to the authenticated user's shop.
+- Retrieving the customer's complete transaction history.
+- Calling the feature extraction function.
+- Passing calculated features to the risk assessment engine.
+- Constructing the final structured response.
 
-## 19.8 Integration with Other Modules
+The service also prevents users from analyzing customers belonging to other shops.
 
-Customer creation is connected to several application features.
+**3. Feature Extraction**
 
-**Transaction Management:** Newly created customers can be associated with transactions.
+File: `backend/app/ml/features.py`
 
-**Customer Dashboard:** Customer records can be displayed and managed.
+The `extract_customer_features()` function processes transaction history and calculates financial indicators.
 
-**AI Voice Assistant:** Voice instructions can refer to customers stored in the database.
+Features include:
 
-**Notifications:** Customer contact information can support communication features.
+| Feature | Description |
+|---|---|
+| `total_transactions` | Total number of transactions |
+| `credit_count` | Number of credit transactions |
+| `payment_count` | Number of payment transactions |
+| `total_credit_amount` | Total credit amount |
+| `total_payment_amount` | Total payment amount |
+| `outstanding_balance` | Credit amount minus payment amount |
+| `repayment_ratio` | Payment amount divided by credit amount |
+| `average_credit_amount` | Average credit transaction value |
+| `days_since_last_payment` | Days since the most recent payment |
+| `days_since_last_transaction` | Days since the most recent transaction |
 
-## 19.9 Benefits
+The repayment ratio is calculated as:
 
-- Easy customer onboarding.
-- Structured customer information.
-- Better user experience.
-- Integration with transaction management.
-- Improved data organization.
-- Foundation for customer-related AI features.
+```python
+repayment_ratio = total_payment / total_credit
+```
 
-## 19.10 Final Summary
+If the total credit amount is zero, the repayment ratio is set to zero.
 
-In this module, we implemented the Customer Creation Form in the frontend and connected it with the backend customer management workflow.
+The feature extraction logic also handles transaction timestamps and converts timezone-naive timestamps to UTC before calculating elapsed time.
 
-This allows shopkeepers to enter customer information and maintain customer records digitally.
+**4. Customer Data Validation**
 
-**The main objective was to make customer registration simple and connect it with the remaining application modules.**
+File: `backend/app/ml/features.py`
 
+The `validate_customer_data()` function checks whether sufficient transaction history is available.
 
-# 20. Offline Transaction Storage and Synchronization
+Current minimum requirements:
 
-## 20.1 Introduction
+- At least 5 total transactions.
+- At least 2 payment transactions.
 
-Shopkeepers may sometimes experience slow or unstable internet connections.
+If these requirements are not satisfied, the assessment returns `insufficient_data`.
 
-If the application requires a constant internet connection for every operation, users may face difficulties while recording transactions.
+**5. Risk Assessment Engine**
 
-To improve reliability, we implemented offline transaction storage and synchronization.
+File: `backend/app/ml/risk_assessment.py`
 
-This feature uses IndexedDB to store transaction information locally in the browser and supports synchronization with the backend.
+The `assess_customer_risk()` function uses transparent baseline rules based on the repayment ratio.
 
-## 20.2 What Is Offline Storage?
+| Repayment Ratio | Risk Classification |
+|---|---|
+| 80% or higher | Low Risk |
+| 50% to below 80% | Medium Risk |
+| Below 50% | High Risk |
 
-Offline storage allows a web application to store selected information locally on the user's device.
-
-This information can remain available even when the internet connection is temporarily unavailable.
-
-In our project, IndexedDB is used for local transaction storage.
-
-This helps the application maintain pending transaction information before it can be synchronized with the backend.
-
-## 20.3 What Is IndexedDB?
-
-IndexedDB is a browser-based database API.
-
-It allows web applications to store structured data locally.
-
-Unlike simple key-value storage, IndexedDB supports storing multiple records and querying data through object stores and indexes.
-
-It is useful for applications that need to maintain larger or more structured local datasets.
-
-## 20.4 Why Did We Use IndexedDB?
-
-We used IndexedDB because:
-
-1. It supports structured data storage.
-2. It works inside the browser.
-3. It can store multiple transaction records.
-4. It supports asynchronous database operations.
-5. It helps maintain local application data.
-6. It supports offline-first application workflows.
-
-## 20.5 What Is Offline Transaction Storage?
-
-Offline transaction storage means saving transaction information locally when it cannot immediately be processed by the backend.
+The engine also examines the outstanding balance and generates explanations.
 
 For example:
 
-1. A shopkeeper enters a transaction.
-2. The internet connection is unavailable.
-3. The application stores the transaction locally.
-4. The transaction remains pending synchronization.
-5. When connectivity becomes available, the application can attempt to synchronize it with the backend.
+- A repayment ratio of 80% or higher indicates a relatively strong repayment pattern.
+- A repayment ratio between 50% and 80% indicates that repayment history should be reviewed.
+- A repayment ratio below 50% indicates a higher credit risk.
 
-This helps reduce dependency on continuous internet connectivity.
+The engine generates a recommendation for each risk category.
 
-## 20.6 How Does Synchronization Work?
+**Important implementation detail:** This version uses explainable rule-based logic rather than a trained classification model. The response currently returns `risk_score` as `None`. It is an initial lightweight risk assessment engine, not a trained predictive ML model.
 
-Synchronization is the process of transferring locally stored information to the backend and updating its status.
+### Risk Assessment Response
 
-The general workflow is:
+File: `backend/app/schemas/credit_risk.py`
 
-1. The user creates a transaction.
-2. The application checks whether the backend can be reached.
-3. If the transaction cannot be sent immediately, it is stored locally.
-4. The application keeps track of pending transactions.
-5. When connectivity becomes available, synchronization is attempted.
-6. The backend receives and validates the transaction.
-7. The backend processes the transaction.
-8. The application updates the local synchronization status.
+The `CreditRiskResponse` schema returns:
+
+- Customer ID
+- Risk level
+- Risk score
+- Total transactions
+- Total credit amount
+- Total payment amount
+- Outstanding balance
+- Repayment ratio
+- Explanation
+- Recommendation
+
+The risk level supports four values:
+
+- `low`
+- `medium`
+- `high`
+- `insufficient_data`
+
+---
+
+## Part B: FIFO-Based Repayment Allocation
+
+### Problem Statement
+
+Suppose a customer has taken goods on credit multiple times:
+
+| Credit Transaction | Amount |
+|---|---:|
+| First Credit | ₹1,000 |
+| Second Credit | ₹500 |
+| Third Credit | ₹800 |
+| **Total Credit** | **₹2,300** |
+
+Now the customer makes a payment of ₹1,200.
+
+Instead of manually deciding which credit record should be cleared, the system automatically allocates the payment to the oldest outstanding credit first.
+
+### FIFO Principle
+
+FIFO stands for **First In, First Out**.
+
+Under this approach, the oldest outstanding credit transaction receives payment allocation first.
+
+### FIFO Architecture Flow
+
+```mermaid
+flowchart TD
+    A[Customer Makes Payment] --> B[Create Payment Transaction]
+    B --> C[Lock Payment Record]
+    C --> D{Already Processed?}
+    D -->|Yes| E[Return Previous Allocation Total]
+    D -->|No| F[Fetch Customer Credit Transactions]
+    F --> G[Sort Oldest First]
+    G --> H[Calculate Previously Allocated Amounts]
+    H --> I[Calculate Remaining Credit]
+    I --> J[Allocate Payment]
+    J --> K{Payment Remaining?}
+    K -->|Yes| L[Move to Next Oldest Credit]
+    L --> I
+    K -->|No| M[Mark Allocation Processed]
+    M --> N[Flush Repayment Records]
+```
+
+### Backend Implementation
+
+**1. Repayment Allocation Service**
+
+File: `backend/app/services/repayment.py`
+
+The main function is:
+
+`allocate_payment_to_credits()`
+
+Its responsibilities include:
+
+1. Verify that the supplied transaction is a payment.
+2. Lock the payment transaction using `SELECT FOR UPDATE`.
+3. Check whether allocation has already been processed.
+4. Retrieve the customer's credit transactions in chronological order.
+5. Calculate amounts already allocated to each credit.
+6. Determine the remaining outstanding amount for each credit.
+7. Allocate the payment to the oldest outstanding credit first.
+8. Mark the payment as processed.
+9. Flush the repayment records.
+
+The service uses SQLAlchemy's `with_for_update()` to lock the payment and credit transaction rows during allocation.
+
+### Example of FIFO Allocation
+
+Assume the following transactions:
+
+| Credit | Original Amount | Allocation |
+|---|---:|---:|
+| Credit 1 | ₹1,000 | ₹1,000 |
+| Credit 2 | ₹500 | ₹200 |
+| Credit 3 | ₹800 | ₹0 |
+
+Payment received: ₹1,200.
+
+Remaining payment: ₹0.
+
+The first credit is completely cleared, and ₹200 is allocated to the second credit.
+
+### 2. Repayment Database Model
+
+File: `backend/app/models/repayment.py`
+
+The `Repayment` model stores the relationship between credit transactions and payment transactions.
+
+Important fields:
+
+- `id`
+- `credit_transaction_id`
+- `payment_transaction_id`
+- `amount`
+- `allocated_at`
+
+The model also defines:
+
+- A unique constraint on the credit and payment transaction combination.
+- A check constraint ensuring that the allocated amount is greater than zero.
+
+This creates a traceable allocation record rather than simply modifying the original credit transaction.
+
+### 3. Integration with Transaction Management
+
+File: `backend/app/services/transaction.py`
+
+The transaction creation service invokes `allocate_payment_to_credits()` whenever a payment transaction is created.
+
+The repayment records are flushed as part of the surrounding transaction workflow and committed with the transaction and related records.
+
+### Complete Integration Flow
+
+```mermaid
+flowchart TD
+    A[POST /transactions/] --> B[Transaction Service]
+    B --> C[Validate Shop and Customer]
+    C --> D[Create Payment Transaction]
+    D --> E[Update Customer Behaviour]
+    E --> F[Call FIFO Allocation Service]
+    F --> G[Create Repayment Records]
+    G --> H[Create Pending Notification]
+    H --> I[Commit Database Transaction]
+    I --> J[Return Transaction Response]
+```
+
+### Key Learning
+
+This module demonstrates financial feature engineering, explainable rule-based risk assessment, SQLAlchemy row locking, FIFO allocation, relational repayment modelling, and transactional consistency.
+
+---
+
+# 10. AI-Powered Voice Transaction Entry
+
+## Overview
+
+The AI-Powered Voice Transaction Entry module allows shop owners to record customer credit and payment transactions using natural speech instead of manually filling out forms.
+
+For example, a shop owner can say:
+
+> "Krishna ne 500 rupaye ka saman udhar liya."
+
+The system processes the recording, converts speech into text, extracts transaction details, identifies the customer, and prepares a transaction preview.
+
+The transaction is saved only after the user confirms the extracted information.
+
+## Architecture
+
+The module follows a multi-stage processing architecture:
+
+1. Audio capture
+2. Audio upload
+3. Speech-to-text conversion
+4. Transaction information extraction
+5. Customer identification
+6. Preview generation
+7. User confirmation
+8. Transaction persistence
+
+### Complete Architecture Flow
+
+```mermaid
+flowchart TD
+    A[Shop Owner] --> B[Voice Recorder - Browser]
+    B --> C[MediaRecorder API]
+    C --> D[Audio Blob]
+    D --> E[Frontend Voice API]
+    E --> F[POST /voice/prepare-transaction]
+    F --> G[FastAPI Voice Router]
+    G --> H[Validate Audio File]
+    H --> I[Fetch Shop Customer Names]
+    I --> J[Groq Speech-to-Text]
+    J --> K[Transcribed Text]
+    K --> L[Groq Transaction Extraction]
+    L --> M[Extract Customer, Type, Amount, Description]
+    M --> N[Customer Matching Service]
+    N --> O[Preview / Needs Review]
+    O --> P[User Reviews Details]
+    P --> Q[POST /voice/confirm-transaction]
+    Q --> R[Existing Transaction Service]
+    R --> S[PostgreSQL]
+    S --> T[Transaction Saved]
+```
+
+## Frontend Implementation
+
+**1. Voice Recorder**
+
+File: `frontend/src/features/voice/components/voice-recorder.tsx`
+
+The `VoiceRecorder` component handles browser-based audio recording.
+
+It uses:
+
+- `navigator.mediaDevices.getUserMedia()` to access the microphone.
+- `MediaRecorder` to record audio.
+- `Blob` to combine recorded audio chunks.
+
+The component checks supported audio formats, starts and stops recording, and releases microphone tracks after recording.
+
+When recording is complete, the audio Blob is passed to the parent component through the `onAudioReady()` callback.
+
+**2. Voice Transaction Assistant**
+
+File: `frontend/src/features/voice/components/voice-transaction-assistant.tsx`
+
+This component coordinates the complete voice transaction workflow.
+
+Its responsibilities include:
+
+- Receiving recorded audio.
+- Calling the voice preparation API.
+- Displaying transcription results.
+- Showing extracted transaction information.
+- Displaying customer matching results.
+- Validating missing fields.
+- Requiring confirmation before saving.
+- Handling errors and successful transaction responses.
+
+The assistant also checks that the matched customer is the same customer whose detail page is currently open.
+
+**3. Voice API Integration**
+
+File: `frontend/src/features/voice/voice-api.ts`
+
+The API integration provides functions for:
+
+- `transcribeVoice()`
+- `prepareVoiceTransaction()`
+- `confirmVoiceTransaction()`
+- `prepareTextTransaction()`
+
+The `createAudioFile()` helper converts the recorded Blob into a File with a supported audio extension.
+
+Audio is sent using `FormData`, while transaction confirmation is sent as JSON.
+
+## Backend Implementation
+
+**1. Voice API Router**
+
+File: `backend/app/api/voice.py`
+
+The voice router exposes the following endpoints:
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| POST | `/voice/transcribe` | Convert uploaded audio into text |
+| POST | `/voice/prepare-transaction` | Process audio and prepare a transaction preview |
+| POST | `/voice/prepare-text-transaction` | Extract transaction information from text |
+| POST | `/voice/confirm-transaction` | Save a confirmed voice transaction |
+
+The endpoints use authentication through `get_current_user`.
+
+**2. Audio Validation**
+
+File: `backend/app/api/voice.py`
+
+Before processing, the backend validates:
+
+- Audio content type.
+- Whether the uploaded audio is empty.
+- Maximum audio file size.
+
+The current maximum audio size is 25 MB.
+
+Supported formats include WebM, WAV, MP3, MPEG, MP4, and OGG.
+
+**3. Speech-to-Text Service**
+
+File: `backend/app/services/speech_to_text.py`
+
+The `transcribe_audio()` function integrates with Groq's audio transcription API.
+
+It uses the configured `GROQ_STT_MODEL`.
+
+The transcription prompt contains Indian shopkeeper vocabulary, including:
+
+- Udhar
+- Jama
+- Bhugtan
+- Diye
+- Liye
+- Credit
+- Payment
+- Baki
+- Rupaye
+
+The prompt instructs the transcription system to preserve the original spoken language, names, and amounts instead of translating the speech.
+
+The system can also receive known customer names as additional transcription context.
+
+**4. Transaction Extraction Service**
+
+File: `backend/app/services/voice_extraction.py`
+
+After speech-to-text conversion, the transcribed text is passed to `extract_transaction_details()`.
+
+This function integrates with Groq's chat completion API using the configured `GROQ_CHAT_MODEL`.
+
+The extraction prompt instructs the model to identify:
+
+- Customer name
+- Transaction type
+- Amount
+- Description
+- Due date
+
+The response uses a strict JSON schema.
+
+The model is instructed not to invent missing financial details and to return null for information that cannot be identified reliably.
+
+**5. Voice Schemas**
+
+File: `backend/app/schemas/voice.py`
+
+The schema defines the data structures used throughout voice processing:
+
+- `TextTransactionRequest`
+- `VoiceTransactionExtraction`
+- `MatchedCustomerResponse`
+- `CustomerMatchResponse`
+- `VoiceTransactionConfirm`
+
+Pydantic validates the extracted and confirmed transaction data before it reaches the transaction service.
+
+## Preview and Confirmation Architecture
+
+The system does not immediately save a transaction after AI extraction.
+
+Instead, it returns one of two processing states:
+
+**`preview_ready`**
+
+Returned when the required transaction details are available and the customer has one unique match.
+
+**`needs_review`**
+
+Returned when required information is missing or the customer cannot be uniquely matched.
+
+The user must review the details before confirming the transaction.
+
+### Confirmation Flow
+
+```mermaid
+flowchart TD
+    A[Voice Processing Result] --> B{Required Fields Complete?}
+    B -->|No| C[Needs Review]
+    B -->|Yes| D{Unique Customer Match?}
+    D -->|No| C
+    D -->|Yes| E[Preview Ready]
+    E --> F[User Reviews Transaction]
+    F --> G[Confirm and Save]
+    G --> H[Validate Confirmation Payload]
+    H --> I[Create Transaction with VOICE Source]
+    I --> J[Return Saved Transaction]
+```
+
+During confirmation, the backend reuses the existing `create_transaction()` service.
+
+It sets the transaction source to `VOICE`, ensuring that voice-created transactions can be distinguished from manually entered transactions.
+
+### Key Learning
+
+This module demonstrates browser audio recording, asynchronous API integration, speech-to-text processing, LLM-based structured information extraction, Pydantic validation, customer matching, and human-in-the-loop transaction confirmation.
+
+---
+
+# 11. Multilingual AI Voice Transaction Processing
+
+## Overview
+
+Small shop owners may naturally communicate in Hindi, Marathi, English, Hinglish, or a mixture of these languages.
+
+A voice transaction system designed only for English would create unnecessary barriers for many Indian shopkeepers.
+
+To address this, Universal Digital Khata includes multilingual speech transcription and transaction extraction capabilities.
+
+The system is designed to understand common local business expressions and extract structured financial information from natural conversations.
+
+## Supported Languages
+
+The current prompts explicitly support:
+
+- Hindi
+- Marathi
+- English
+- Hinglish
+- Mixed Hindi-English
+- Mixed Marathi-English
+
+## Multilingual Processing Architecture
+
+The multilingual pipeline uses two AI processing stages:
+
+1. Speech-to-text transcription using Groq.
+2. Structured transaction extraction using Groq's chat completion API.
 
 ### Architecture Flow
 
-```text
-       USER CREATES TRANSACTION
-                 |
-                 v
-          FRONTEND APP
-                 |
-                 v
-        CHECK CONNECTION
-                 |
-           +-----+-----+
-           |           |
-           v           v
-        ONLINE       OFFLINE
-           |           |
-           v           v
-     BACKEND API    INDEXEDDB
-           |           |
-           v           v
-      POSTGRESQL   PENDING DATA
-           |           |
-           |           v
-           |     CONNECTION RETURNS
-           |           |
-           |           v
-           |     SYNC REQUEST
-           |           |
-           +-----+-----+
-                 |
-                 v
-         BACKEND VALIDATION
-                 |
-                 v
-         TRANSACTION STORAGE
+```mermaid
+flowchart TD
+    A[Hindi / Marathi / English / Hinglish Speech] --> B[Audio Recording]
+    B --> C[Groq Speech-to-Text]
+    C --> D[Original Language Transcription]
+    D --> E[Multilingual Extraction Prompt]
+    E --> F[Groq Chat Completion]
+    F --> G[Structured JSON Output]
+    G --> H[Pydantic Validation]
+    H --> I[Customer Matching and Preview]
 ```
 
-## 20.7 What Is Offline-First Architecture?
+## Implementation Details
 
-Offline-first architecture is an application design approach in which important operations are designed to work with local data even when the network is unavailable.
+**1. Multilingual Speech Recognition Prompt**
 
-Instead of depending entirely on the server for every interaction, the application can temporarily use local storage.
+File: `backend/app/services/speech_to_text.py`
 
-When connectivity returns, the application synchronizes pending changes with the backend.
+The `BASE_TRANSCRIPTION_PROMPT` contains instructions for recognizing common Indian shopkeeper terminology.
 
-This approach is useful for applications that operate in environments with unreliable internet connections.
+The transcription service is instructed to:
 
-## 20.8 Role of IndexedDB
+- Preserve the original spoken language.
+- Avoid unnecessary translation.
+- Preserve customer names.
+- Preserve numerical amounts.
+- Recognize common transaction-related vocabulary.
 
-IndexedDB acts as the local storage layer.
+The `build_transcription_prompt()` function dynamically adds known customer names to the transcription prompt.
 
-It helps the frontend:
+It removes duplicate names and limits the additional customer-name context to 30 names.
 
-- Store pending transaction records.
-- Maintain local transaction information.
-- Retrieve locally stored records.
-- Keep information available during temporary connectivity problems.
-- Support the synchronization workflow.
+The final prompt is limited to 896 characters, matching the configured Whisper prompt constraint documented in the implementation.
 
-## 20.9 Role of Backend
+**2. Multilingual Transaction Extraction**
 
-The backend remains responsible for processing and storing the application's authoritative transaction records.
+File: `backend/app/services/voice_extraction.py`
 
-During synchronization, the backend should validate incoming transaction information before saving it.
+The extraction service contains a detailed system prompt describing how to interpret Hindi, Marathi, English, Hinglish, and mixed-language expressions.
 
-The local database should not be treated as proof that a transaction has been permanently recorded in the server database.
+An important responsibility is distinguishing between credit and completed payment.
 
-## 20.10 Why Is Idempotency Important During Synchronization?
+### Credit Classification
 
-Offline synchronization may involve retrying requests when network connections fail.
+A transaction is classified as credit when the customer receives goods or services but has not paid yet.
 
-For example, the frontend may send a transaction request, but the connection may fail before it receives the response.
+Examples:
 
-The frontend may not know whether the backend processed the request.
+| Spoken Expression | Classification |
+|---|---|
+| Krishna ne 500 rupaye udhar liye | Credit |
+| Rahul kal paise dega | Credit |
+| Payment baad mein karega | Credit |
+| Paise dena baaki hai | Credit |
 
-If it retries the same transaction without protection, a duplicate record may be created.
+### Payment Classification
 
-Transaction idempotency helps reduce this risk by allowing the backend to identify repeated submissions of the same logical transaction.
+A transaction is classified as payment only when money has actually been received.
 
-This is an important connection between Module 16 and the offline synchronization feature.
+Examples:
 
-## 20.11 Important Considerations
+| Spoken Expression | Classification |
+|---|---|
+| Krishna ne 400 rupaye de diye | Payment |
+| Rahul se 500 rupaye mile | Payment |
+| Paise jama kiye | Payment |
+| Customer ne payment kar diya | Payment |
 
-Offline financial operations require careful handling.
+If the spoken sentence does not clearly establish whether payment has been completed, the extraction prompt instructs the model to return `null` for the transaction type.
 
-The application should consider:
+This distinction is important because incorrectly classifying a credit transaction as a payment could produce incorrect financial records.
 
-- Duplicate synchronization requests.
-- Network failures.
-- Pending transaction status.
-- Data consistency.
-- Failed synchronization attempts.
-- Local storage limitations.
-- Secure handling of locally stored information.
+**3. Customer Name Extraction**
 
-A transaction should be clearly identified as pending until the backend confirms successful processing.
+The extraction prompt includes instructions for handling Indian names and common conversational honorifics.
 
-## 20.12 Benefits
+For example:
 
-- Better experience during internet interruptions.
-- Local transaction storage.
-- Support for pending transactions.
-- Reduced dependency on continuous connectivity.
-- Synchronization with the backend.
-- Better reliability for shopkeepers.
-- Integration with transaction idempotency.
+- Krishna Bhaiya → Krishna
+- Rahul Sharma Ji → Rahul Sharma
+- Krishna Burande → Krishna Burande
 
-## 20.13 Final Summary
+The system is instructed to preserve actual names and surnames, remove conversational honorifics when appropriate, and avoid inventing customer identities.
 
-In this module, we implemented offline transaction storage and synchronization using IndexedDB.
+**4. Amount Extraction**
 
-The feature allows transaction information to be stored locally when immediate backend communication is unavailable.
+The extraction prompt supports Hindi and Marathi number expressions.
 
-When connectivity returns, the application can synchronize pending transactions with the backend.
+Examples:
 
-**The main objective was to make Universal Digital Khata more reliable in real-world shop environments where internet connectivity may not always be stable.**
+| Spoken Number | Extracted Value |
+|---|---:|
+| सौ | 100 |
+| दो सौ | 200 |
+| पांच सौ | 500 |
+| पाचशे | 500 |
+| हजार | 1,000 |
+| दोन हजार | 2,000 |
+
+It also supports common currency expressions such as Rs, INR, rupees, and रुपये.
+
+**5. Strict Structured JSON Output**
+
+File: `backend/app/services/voice_extraction.py`
+
+The extraction service defines `TRANSACTION_EXTRACTION_SCHEMA`.
+
+The model must return the following fields:
+
+```json
+{
+  "customer_name": "Krishna",
+  "transaction_type": "credit",
+  "amount": 500,
+  "description": "Grocery items",
+  "due_date": null
+}
+```
+
+This is an illustrative example of the expected response structure.
+
+The actual implementation uses strict JSON schema output with `additionalProperties` disabled.
+
+The result is parsed using Python's JSON module and validated using `VoiceTransactionExtraction`.
+
+**6. Due Date Extraction**
+
+The extraction prompt supports explicit date expressions such as:
+
+- Tomorrow
+- Next Monday
+- Kal
+- उद्या
+- पुढच्या आठवड्यात
+
+It instructs the model not to invent dates and to return null when the date is unclear.
+
+### Key Learning
+
+This module demonstrates multilingual prompt engineering, domain-specific vocabulary, contextual language understanding, strict JSON schema generation, and financial intent classification.
+
+---
+
+# 12. Improved Multilingual Voice Extraction & Intelligent Customer Matching
+
+## Overview
+
+The initial voice transaction pipeline required reliable customer name extraction and accurate identification of the corresponding customer record.
+
+Real-world speech can contain:
+
+- Different pronunciations.
+- Incomplete names.
+- First names instead of full names.
+- Initials.
+- Minor speech recognition errors.
+- Honorifics and conversational expressions.
+
+To improve reliability, the application includes a dedicated customer matching service.
+
+Instead of depending only on exact name matching, the system uses normalization, token-based comparison, partial matching, and conservative fuzzy matching.
+
+The module also ensures that ambiguous customer matches are never automatically selected.
+
+## Architecture
+
+```mermaid
+flowchart TD
+    A[Transcribed Voice Text] --> B[LLM Transaction Extraction]
+    B --> C[Extract Customer Name]
+    C --> D[Normalize Customer Name]
+    D --> E[Fetch Customers of Authenticated Shop]
+    E --> F[Exact Full Name Matching]
+    F --> G{Exact Match Found?}
+    G -->|Yes| H[Check Match Count]
+    G -->|No| I[Token Based Matching]
+    I --> J[Initial and Prefix Matching]
+    J --> K[Conservative Fuzzy Matching]
+    K --> L[Calculate Similarity Scores]
+    L --> M[Filter Relevant Candidates]
+    M --> H
+    H --> N{Unique Customer?}
+    N -->|Yes| O[Matched]
+    N -->|No, Multiple| P[Multiple Matches]
+    N -->|No Candidates| Q[Not Found]
+    O --> R[Transaction Preview]
+    P --> S[Needs Review]
+    Q --> S
+```
+
+## Backend Implementation
+
+**1. Customer Matching Service**
+
+File: `backend/app/services/customer_matching.py`
+
+The main function is:
+
+`match_customer()`
+
+It identifies the best customer candidates from the authenticated user's shop.
+
+The service first retrieves the shop belonging to the logged-in user and then fetches customers associated with that shop.
+
+It never searches customers outside the current shop.
+
+**2. Customer Name Normalization**
+
+Function: `normalize_name()`
+
+The service normalizes names before comparison.
+
+It performs:
+
+- Case-insensitive conversion using `casefold()`.
+- Leading and trailing whitespace removal.
+- Punctuation normalization.
+- Removal of unnecessary repeated spaces.
+
+For example:
+
+```text
+" KRISHNA  BURANDE "
+"Krishna Burande"
+"krishna burande"
+```
+
+These values are normalized into a comparable representation.
+
+**3. Exact Full-Name Matching**
+
+The service first attempts exact normalized full-name matching.
+
+If exactly one customer matches, the result is:
+
+`matched`
+
+If multiple customers match the same normalized name, the result is:
+
+`multiple_matches`
+
+This priority prevents approximate matching from overriding a reliable exact match.
+
+**4. Token-Based Matching**
+
+Function: `match_name_tokens()`
+
+If exact matching fails, the service compares individual name tokens.
+
+The implementation supports:
+
+| Matching Strategy | Example |
+|---|---|
+| Exact token | Krishna → Krishna |
+| Initial matching | Krishna B → Krishna Burande |
+| Partial prefix matching | Krish → Krishna |
+| Conservative fuzzy matching | Small spelling variation |
+
+The matching implementation uses `SequenceMatcher` from Python's `difflib` library for spelling similarity.
+
+The current matching thresholds are:
+
+- Exact token match: `1.00`
+- Initial match: `0.90`
+- Partial prefix match: `0.95`
+- Fuzzy match: at least `0.85`
+
+The final candidate score is calculated from the average token match score.
+
+**5. Candidate Selection**
+
+After calculating similarity scores, the service sorts candidates from highest to lowest score.
+
+It considers candidates with:
+
+- A score of at least `0.85`.
+- A score no more than `0.15` below the best candidate.
+
+If multiple relevant candidates remain, the service returns `multiple_matches` instead of guessing.
+
+The response contains up to 10 matching customer candidates.
+
+If exactly one relevant candidate remains, the result is `matched`.
+
+If no suitable candidate exists, the result is `not_found`.
+
+## Customer Matching Response
+
+File: `backend/app/schemas/voice.py`
+
+The `CustomerMatchResponse` schema defines three possible statuses:
+
+| Status | Meaning |
+|---|---|
+| `matched` | Exactly one customer has been identified |
+| `multiple_matches` | Multiple possible customers exist |
+| `not_found` | No suitable customer was identified |
+
+The response includes matching customer IDs, names, and available mobile numbers.
+
+## Integration with Voice Transaction Processing
+
+File: `backend/app/api/voice.py`
+
+The voice preparation endpoint calls the customer matching service after extracting the customer name.
+
+An important implementation decision is that customer matching is still attempted when the customer name is available, even if the amount or transaction type is missing.
+
+This allows the preview to show customer matching results while separately identifying missing transaction information.
+
+The API returns:
+
+- `preview_ready` when required transaction details are complete and there is one unique customer match.
+- `needs_review` when transaction information is incomplete or customer matching is ambiguous.
+
+## Frontend Integration and Safety
+
+File: `frontend/src/features/voice/components/voice-transaction-assistant.tsx`
+
+The frontend displays the extracted transaction information and customer matching results.
+
+Before allowing confirmation, it checks:
+
+1. A unique customer must be matched.
+2. The matched customer ID must match the currently opened customer page.
+3. Transaction type must be available.
+4. Amount must be numeric and greater than zero.
+5. No required fields should be missing.
+6. A payment transaction must not contain a due date.
+
+If these conditions are not satisfied, the transaction cannot be confirmed.
+
+This adds an important human verification step before financial data is saved.
+
+## Confirmation and Duplicate Protection
+
+The frontend creates a UUID confirmation ID using `crypto.randomUUID()`.
+
+It reuses the same confirmation ID if the confirmation request needs to be retried.
+
+File: `backend/app/api/voice.py`
+
+The `/voice/confirm-transaction` endpoint converts the confirmed payload into `VoiceTransactionCreate` and calls the existing transaction service.
+
+The transaction is saved with:
+
+- `TransactionSource.VOICE`
+- The supplied confirmation ID as the idempotency key.
+
+File: `backend/app/services/transaction.py`
+
+The existing idempotency logic prevents the same confirmation request from creating duplicate transactions.
+
+### Complete Voice-to-Database Architecture
+
+```mermaid
+flowchart TD
+    A[Shop Owner Speaks] --> B[Browser MediaRecorder]
+    B --> C[Audio Upload]
+    C --> D[FastAPI Voice Router]
+    D --> E[Groq Whisper Transcription]
+    E --> F[Multilingual Text]
+    F --> G[Groq LLM Extraction]
+    G --> H[Structured Transaction Data]
+    H --> I[Customer Matching Service]
+    I --> J{Unique Customer and Complete Details?}
+    J -->|No| K[Needs Review]
+    J -->|Yes| L[Transaction Preview]
+    K --> M[User Reviews / Records Again]
+    L --> N[User Confirms]
+    N --> O[Confirmation UUID]
+    O --> P[Voice Confirmation API]
+    P --> Q[Transaction Service]
+    Q --> R[Idempotency Validation]
+    R --> S[Database Transaction]
+    S --> T[PostgreSQL]
+```
+
+### Key Learning
+
+This module demonstrates intelligent entity matching, text normalization, token-based similarity, fuzzy string matching, ambiguity handling, authenticated data isolation, human-in-the-loop validation, and idempotent financial transaction confirmation.
+
+---
+
+# Batch 3 – Modules Covered
+
+| Module | Feature | Main Technologies |
+|---|---|---|
+| 9 | Credit Risk Assessment & FIFO Repayment | Python, SQLAlchemy, Decimal, Rule-Based Logic |
+| 10 | AI Voice Transaction Entry | MediaRecorder, FastAPI, Groq |
+| 11 | Multilingual Voice Processing | Groq Whisper, LLM, JSON Schema |
+| 12 | Intelligent Customer Matching | Python, SequenceMatcher, Pydantic |
+
+## Overall Architecture: Modules 9–12
+
+The following diagram shows how these four capabilities connect with the existing core application.
+
+```mermaid
+flowchart TD
+    A[Universal Digital Khata Frontend] --> B[FastAPI Backend]
+
+    B --> C[Authentication and Authorization]
+
+    C --> D[Customer and Transaction Data]
+    D --> E[PostgreSQL Database]
+
+    D --> F[Credit Risk Service]
+    F --> G[Feature Extraction]
+    G --> H[Rule-Based Risk Assessment]
+    H --> I[Risk Explanation and Recommendation]
+
+    D --> J[Transaction Service]
+    J --> K[FIFO Repayment Allocation]
+    K --> L[Repayment Records]
+
+    A --> M[Voice Recorder]
+    M --> N[Voice API]
+    N --> O[Groq Speech-to-Text]
+    O --> P[Multilingual Transaction Extraction]
+    P --> Q[Customer Matching]
+    Q --> R[Preview and User Confirmation]
+    R --> J
+
+    I --> S[Business Insights]
+    L --> E
+    J --> E
+```
+
+## Important Architecture Decisions
+
+1. **Separation of concerns:** API routers, business services, ML utilities, schemas, and database models have separate responsibilities.
+2. **Authenticated data isolation:** Customer and risk-related operations verify shop ownership.
+3. **Human-in-the-loop AI:** Extracted voice transactions are reviewed before persistence.
+4. **Financial consistency:** Decimal values are used for monetary calculations, and transaction changes are committed through database transactions.
+5. **Duplicate protection:** Idempotency keys protect transaction confirmation against repeated requests.
+6. **Lightweight processing:** The current risk assessment uses Python-based rules and calculated features rather than loading a large trained model.
+7. **Reusable business logic:** Voice transactions reuse the same transaction service as manual transactions.
+
+# 13. Customer Credit Risk Dashboard
+
+## Overview
+
+The Customer Credit Risk Dashboard provides shop owners with a visual representation of customer repayment behaviour and credit risk assessments.
+
+Instead of displaying only outstanding balances, the dashboard combines financial indicators, repayment ratios, risk classifications, explanations, and recommendations.
+
+It helps shop owners understand which customers have relatively strong repayment patterns and which customers may require additional attention before extending more credit.
+
+## Architecture
+
+The dashboard follows a frontend-to-backend data flow.
+
+The frontend requests a customer's credit risk assessment, the backend analyzes the customer's transaction history, and the resulting structured assessment is displayed through a dedicated React component.
+
+### Architecture Flow
+
+```mermaid
+flowchart TD
+    A[Customer Details Page] --> B[Credit Risk Card Component]
+    B --> C[Credit Risk API Client]
+    C --> D[GET /credit-risk/customers/customer_id]
+    D --> E[FastAPI Credit Risk Router]
+    E --> F[Credit Risk Service]
+    F --> G[Fetch Transaction History]
+    G --> H[Feature Extraction]
+    H --> I[Rule-Based Risk Assessment]
+    I --> J[Structured Risk Response]
+    J --> K[Frontend State]
+    K --> L[Risk Classification and Financial Metrics]
+    K --> M[Repayment Ratio]
+    K --> N[Explanation and Recommendation]
+```
+
+## Frontend Implementation
+
+### 1. Credit Risk API Integration
+
+File: `frontend/src/features/credit-risk/credit-risk-api.ts`
+
+The `getCustomerCreditRisk()` function sends an authenticated GET request to:
+
+`/credit-risk/customers/{customerId}`
+
+It receives the backend response using the `CreditRiskResponse` TypeScript interface.
+
+### 2. Credit Risk Response Types
+
+File: `frontend/src/features/credit-risk/types.ts`
+
+The interface defines the data required by the dashboard:
+
+- Customer ID
+- Risk level
+- Risk score
+- Total transactions
+- Total credit amount
+- Total payment amount
+- Outstanding balance
+- Repayment ratio
+- Explanation
+- Recommendation
+
+The frontend supports four risk states:
+
+| Risk Level | Dashboard Label |
+|---|---|
+| `low` | Low Risk |
+| `medium` | Medium Risk |
+| `high` | High Risk |
+| `insufficient_data` | Insufficient Data |
+
+### 3. Credit Risk Card Component
+
+File: `frontend/src/features/credit-risk/components/credit-risk-card.tsx`
+
+The `CreditRiskCard` component is responsible for displaying the complete assessment.
+
+Its responsibilities include:
+
+- Fetching the credit risk assessment.
+- Managing loading and error states.
+- Providing a retry option.
+- Displaying risk classification.
+- Formatting financial values using INR currency formatting.
+- Displaying total transactions and financial amounts.
+- Visualizing the repayment ratio.
+- Showing assessment explanations.
+- Displaying recommendations.
+
+The component accepts two props:
+
+- `customerId`: Identifies the customer being analyzed.
+- `refreshKey`: Allows the assessment to be refreshed when relevant customer data changes.
+
+The component uses React's `useEffect`, `useCallback`, and `useState` hooks for API execution and state management.
+
+### 4. Repayment Ratio Visualization
+
+The repayment ratio is converted into a percentage:
+
+```typescript
+const repaymentPercentage =
+  assessment.repayment_ratio * 100;
+```
+
+The component displays this value using a progress bar.
+
+The visual width is constrained between 0% and 100% to avoid invalid CSS widths.
+
+The dashboard also displays the explanation:
+
+"Total payments divided by total credit."
+
+### 5. Risk Explanation and Recommendation
+
+The dashboard displays the explanation returned by the backend instead of showing only a risk label.
+
+For example, the assessment may explain that the repayment ratio is below 50% and that an outstanding balance remains.
+
+It also displays a recommendation based on the calculated risk category.
+
+An important design decision is that the dashboard explicitly identifies the assessment as rule-based decision support rather than a trained predictive ML model.
+
+## Backend Integration
+
+The backend assessment logic is reused from Module 9.
+
+Important files:
+
+- `backend/app/api/credit_risk.py`
+- `backend/app/services/credit_risk.py`
+- `backend/app/ml/features.py`
+- `backend/app/ml/risk_assessment.py`
+- `backend/app/schemas/credit_risk.py`
+
+The frontend does not independently calculate risk. It consumes the structured response generated by the backend.
+
+## Complete Data Flow
+
+1. The shop owner opens a customer's details.
+2. The Credit Risk Card component loads.
+3. The frontend calls the credit risk API.
+4. The backend verifies customer ownership.
+5. Transaction history is retrieved.
+6. Financial features are calculated.
+7. The risk assessment engine generates the classification.
+8. The backend returns explanations and recommendations.
+9. The frontend displays the assessment.
+
+### Key Learning
+
+This module demonstrates API-driven dashboard development, reusable React components, asynchronous state management, financial data visualization, INR formatting, and explainable risk presentation.
+
+---
+
+# 14. Customer Notifications & Payment Reminders
+
+## Overview
+
+The Customer Notifications module maintains a record of important customer-related financial events.
+
+Whenever a credit or payment transaction is created, the transaction service generates a corresponding notification record.
+
+The system also includes a payment reminder generator that identifies outstanding credit transactions whose due dates have arrived.
+
+This module helps shop owners keep track of credit additions, received payments, balance-related events, and payment reminders.
+
+## Notification Types
+
+The database model supports four notification types:
+
+| Notification Type | Purpose |
+|---|---|
+| `credit_added` | A new credit transaction has been recorded |
+| `payment_received` | A customer payment has been recorded |
+| `balance_updated` | Represents a balance-related notification type |
+| `payment_reminder` | A due or overdue payment reminder |
+
+The notification model also supports three delivery statuses:
+
+- `pending`
+- `sent`
+- `failed`
+
+## Architecture
+
+The notification functionality has two main workflows:
+
+1. Transaction-triggered notification creation.
+2. Scheduled or manually executed payment reminder generation.
+
+### Part A: Transaction-Triggered Notification Flow
+
+```mermaid
+flowchart TD
+    A[Manual or Voice Transaction] --> B[Transaction API]
+    B --> C[Transaction Service]
+    C --> D[Validate Customer and Shop]
+    D --> E[Create Transaction]
+    E --> F[Update Customer Behaviour]
+    F --> G{Transaction Type}
+    G -->|Credit| H[Credit Added Notification]
+    G -->|Payment| I[Payment Received Notification]
+    H --> J[Create Pending Notification]
+    I --> J
+    J --> K[Commit Database Transaction]
+    K --> L[Notification Table]
+```
+
+### 1. Notification Creation
+
+File: `backend/app/services/transaction.py`
+
+The `create_transaction()` service handles notification creation as part of the transaction workflow.
+
+For credit transactions, it creates a notification with type:
+
+`NotificationType.CREDIT_ADDED`
+
+For payment transactions, it creates a notification with type:
+
+`NotificationType.PAYMENT_RECEIVED`
+
+The notification message includes the transaction amount.
+
+The notification is initially stored with:
+
+`NotificationStatus.PENDING`
+
+The transaction, customer behaviour update, repayment allocation where applicable, and notification are committed through the same database transaction.
+
+### Part B: Payment Reminder Generation
+
+## Problem Statement
+
+Suppose a customer has taken ₹1,000 worth of goods on credit and the due date has passed.
+
+The shop owner needs to identify that the payment is overdue and understand how much remains outstanding.
+
+The reminder service calculates the remaining amount using the original credit amount and repayment allocations.
+
+### Reminder Architecture Flow
+
+```mermaid
+flowchart TD
+    A[Reminder Job Execution] --> B[Asia/Kolkata Current Date and Time]
+    B --> C[Create Async Database Session]
+    C --> D[Reminder Service]
+    D --> E[Fetch Due Credit Transactions]
+    E --> F[Calculate Allocated Repayments]
+    F --> G[Calculate Remaining Balance]
+    G --> H{Outstanding Amount Greater Than Zero?}
+    H -->|No| I[Skip Fully Paid Credit]
+    H -->|Yes| J{Due Date}
+    J -->|Today| K[Due Reminder]
+    J -->|Past| L[Overdue Reminder]
+    K --> M[Insert Notification]
+    L --> M
+    M --> N[Prevent Duplicate Daily Reminder]
+    N --> O[Commit Database Changes]
+```
+
+### 2. Reminder Generation Service
+
+File: `backend/app/services/reminder.py`
+
+The main function is:
+
+`generate_payment_reminders()`
+
+It accepts:
+
+- An asynchronous SQLAlchemy database session.
+- A timezone-aware `as_of` datetime.
+
+Its responsibilities include:
+
+1. Finding credit transactions with non-null due dates.
+2. Selecting transactions whose due dates have arrived.
+3. Calculating previously allocated repayment amounts.
+4. Calculating the remaining outstanding amount.
+5. Skipping fully paid credit transactions.
+6. Determining whether a payment is due or overdue.
+7. Creating a payment reminder notification.
+8. Preventing duplicate reminders for the same credit transaction on the same calendar day.
+9. Committing the generated notification records.
+
+### 3. Outstanding Amount Calculation
+
+The reminder service calculates the remaining amount as:
+
+```python
+remaining_amount = (
+    Decimal(str(credit.amount))
+    - Decimal(str(allocated_amount))
+)
+```
+
+This ensures that customers are not reminded about amounts that have already been fully allocated through repayments.
+
+### 4. Due and Overdue Classification
+
+The service converts the credit due date into the reminder job's timezone.
+
+It then compares the due date with the current date:
+
+- If the due date is earlier than the current date, the reminder is marked as overdue.
+- Otherwise, the reminder is marked as due.
+
+The reminder message includes the remaining outstanding amount and due date.
+
+### 5. Duplicate Reminder Prevention
+
+The reminder service uses PostgreSQL's `INSERT ... ON CONFLICT DO NOTHING`.
+
+The uniqueness condition is based on:
+
+- `transaction_id`
+- `reminder_date`
+
+It applies specifically to payment reminder notifications.
+
+This prevents the same credit transaction from generating duplicate reminders on the same calendar day.
+
+## Reminder Job Execution
+
+File: `backend/app/jobs/generate_reminders.py`
+
+The job:
+
+1. Uses the `Asia/Kolkata` timezone.
+2. Generates the current timezone-aware datetime.
+3. Opens an asynchronous database session.
+4. Calls `generate_payment_reminders()`.
+5. Prints the execution date and number of newly created reminders.
+
+It can be executed as a Python module or script from the configured backend environment.
+
+**Implementation note:** The repository contains the reminder job script and reminder-generation service. The script itself does not configure a recurring scheduler. A cron service or external scheduler would be needed to execute it automatically at a fixed interval.
+
+## Notification Database Model
+
+File: `backend/app/models/notification.py`
+
+The `Notification` model stores:
+
+- `id`
+- `customer_id`
+- `transaction_id`
+- `notification_type`
+- `reminder_date`
+- `message`
+- `status`
+- `sent_at`
+- `created_at`
+
+The model includes database constraints to ensure that payment reminders have the required transaction and reminder date fields.
+
+It also defines a PostgreSQL partial unique index for daily reminder duplicate prevention.
+
+## Backend Notification APIs
+
+File: `backend/app/api/notification.py`
+
+The notification router exposes:
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| GET | `/notifications/` | Retrieve shop notifications |
+| GET | `/notifications/customers/{customer_id}` | Retrieve notifications for one customer |
+
+Both endpoints require authentication.
+
+The customer-specific endpoint verifies that the customer belongs to the authenticated user's shop.
+
+Both endpoints support pagination using `skip` and `limit`.
+
+The maximum page size is 100.
+
+## Frontend Implementation
+
+### 1. Notification API
+
+File: `frontend/src/features/notifications/notification-api.ts`
+
+The `getNotifications()` function retrieves shop notifications from:
+
+`/notifications/`
+
+It supports pagination parameters and uses the authenticated API client.
+
+### 2. Notification Types
+
+File: `frontend/src/features/notifications/types.ts`
+
+The frontend defines TypeScript types for:
+
+- Notification type.
+- Notification status.
+- Notification response.
+- Pagination parameters.
+
+These types keep frontend notification handling consistent with the backend response structure.
+
+### 3. Notification List Component
+
+File: `frontend/src/features/notifications/components/notification-list.tsx`
+
+The `NotificationList` component displays notifications in a structured list.
+
+It provides:
+
+- Notification type labels.
+- Type-specific visual styles.
+- Formatted date and time.
+- Notification messages.
+- Delivery status.
+- An empty state when no notifications are available.
+
+Dates are formatted using the `en-IN` locale.
+
+### 4. Notifications Page
+
+File: `frontend/src/app/notifications/page.tsx`
+
+The notifications page:
+
+- Checks authentication.
+- Redirects unauthenticated users to the login page.
+- Fetches the latest 50 notifications.
+- Displays the total notification count.
+- Supports category filtering.
+- Displays loading and error states.
+
+The available filters are:
+
+- All
+- Credits
+- Payments
+- Reminders
+
+The frontend filters the already-fetched notifications using React state and `useMemo()`.
+
+## Important Implementation Distinction
+
+The current notification implementation creates and displays notification records and tracks their delivery status.
+
+The repository code documented here does not establish an external SMS, WhatsApp, email, or push-notification delivery provider. Therefore, `pending` should be understood as a stored notification state, not proof that a customer has received a message.
+
+### Key Learning
+
+This module demonstrates event-driven notification creation, background job design, asynchronous database processing, SQL aggregation, timezone-aware date handling, PostgreSQL conflict handling, and notification dashboard development.
+
+---
+
+# 15. Improved Multilingual Voice Transaction Processing
+
+## Overview
+
+This module improves the reliability of the voice transaction processing pipeline.
+
+A voice-based financial application must correctly understand more than individual words. It must understand the shopkeeper's intended transaction, distinguish credit from completed payment, preserve customer names, and avoid inventing missing financial details.
+
+The implementation improves the interaction between speech transcription, customer-name context, LLM-based extraction, customer matching, and transaction preview generation.
+
+## Architecture
+
+```mermaid
+flowchart TD
+    A[Audio Input] --> B[Fetch Authenticated Shop Customer Names]
+    B --> C[Build Context-Aware Transcription Prompt]
+    C --> D[Groq Speech-to-Text]
+    D --> E[Original Language Text]
+    E --> F[Multilingual Transaction Extraction]
+    F --> G[Strict JSON Schema]
+    G --> H[Pydantic Validation]
+    H --> I[Missing Field Detection]
+    I --> J[Customer Matching]
+    J --> K{All Required Information Available?}
+    K -->|No| L[Needs Review]
+    K -->|Yes| M{Unique Customer?}
+    M -->|No| L
+    M -->|Yes| N[Preview Ready]
+```
+
+## Improvements in the Processing Pipeline
+
+### 1. Customer-Aware Speech Transcription
+
+File: `backend/app/services/speech_to_text.py`
+
+The transcription service supports an optional list of known customer names.
+
+The `build_transcription_prompt()` function combines:
+
+- Indian shopkeeper transaction vocabulary.
+- Hindi, Marathi, English, and Hinglish context.
+- Known customer names from the authenticated shop.
+
+It removes duplicate names and adds up to 30 unique customer names to the prompt.
+
+This provides additional context to the speech recognition system when recognizing customer names.
+
+### 2. Contextual Transaction Extraction
+
+File: `backend/app/services/voice_extraction.py`
+
+The extraction prompt contains detailed instructions for understanding the complete transaction sentence.
+
+It covers:
+
+- Credit versus completed payment classification.
+- Customer name extraction.
+- Honorific removal.
+- Full-name and surname preservation.
+- Hindi and Marathi number expressions.
+- Transaction description extraction.
+- Due date extraction.
+- Missing and ambiguous information.
+
+The implementation also instructs the model to distinguish between a future promise and a completed payment.
+
+For example:
+
+| Input | Expected Interpretation |
+|---|---|
+| Krishna will pay tomorrow | Credit |
+| Krishna has paid ₹500 | Payment |
+| Krishna bought goods but payment is unclear | Transaction type unknown |
+| ₹400 received | Payment, customer name unknown |
+
+This reduces the risk of creating incorrect financial records from ambiguous speech.
+
+### 3. Strict Structured Output
+
+The extraction service uses a JSON schema with strict response formatting.
+
+The expected fields are:
+
+```json
+{
+  "customer_name": "string or null",
+  "transaction_type": "credit or payment or null",
+  "amount": 0,
+  "description": "string or null",
+  "due_date": "ISO 8601 datetime or null"
+}
+```
+
+The backend parses the returned JSON and validates it using:
+
+`VoiceTransactionExtraction`
+
+File: `backend/app/schemas/voice.py`
+
+Important validations include:
+
+- Transaction type must be credit or payment.
+- Amount must be greater than zero when provided.
+- Amount supports up to 12 digits and 2 decimal places.
+- Description has a maximum length of 500 characters.
+- Extra fields are rejected.
+
+### 4. Improved Missing Information Handling
+
+File: `backend/app/api/voice.py`
+
+The `/voice/prepare-transaction` endpoint identifies missing fields independently.
+
+It checks:
+
+- Customer name.
+- Amount.
+- Transaction type.
+
+If a customer name exists, customer matching is attempted even if amount or transaction type is missing.
+
+This is useful because the system can still identify the customer while asking the shop owner to review incomplete financial information.
+
+### 5. Safer Preview Generation
+
+The endpoint returns:
+
+`preview_ready`
+
+only when the transaction information is complete and the customer is uniquely matched.
+
+Otherwise, it returns:
+
+`needs_review`
+
+The system does not directly save the extracted AI response.
+
+The user must review and confirm the transaction through the separate confirmation endpoint.
+
+### 6. Text-Based Transaction Preparation
+
+The same extraction pipeline also supports text input through:
+
+`POST /voice/prepare-text-transaction`
+
+Instead of recording audio, the frontend can send a natural-language message.
+
+The backend passes the message directly to the transaction extraction service and then performs customer matching.
+
+This allows the application to support both voice-based and text-based natural-language transaction entry.
+
+## Main Files
+
+| File | Responsibility |
+|---|---|
+| `backend/app/api/voice.py` | Voice and text processing endpoints |
+| `backend/app/services/speech_to_text.py` | Speech transcription |
+| `backend/app/services/voice_extraction.py` | Transaction detail extraction |
+| `backend/app/services/customer_matching.py` | Customer identification |
+| `backend/app/schemas/voice.py` | Structured validation |
+| `frontend/src/features/voice/voice-api.ts` | Frontend API integration |
+| `frontend/src/features/voice/types.ts` | Voice response types |
+| `frontend/src/features/voice/components/voice-transaction-assistant.tsx` | Preview and confirmation UI |
+
+### Key Learning
+
+This module demonstrates contextual prompt engineering, multilingual financial intent extraction, schema-constrained LLM output, data validation, ambiguity handling, and human-reviewed AI workflows.
+
+---
+
+# 16. Transaction Idempotency & Customer Validation
+
+## Overview
+
+Financial applications must handle duplicate requests and invalid customer references carefully.
+
+For example, a user may click the Save button twice, or a network timeout may occur after the backend has already saved a transaction.
+
+If the frontend retries the request without duplicate protection, the same financial transaction could be recorded multiple times.
+
+To address this problem, Universal Digital Khata implements backend idempotency validation and customer ownership checks.
+
+The voice transaction confirmation flow also uses a confirmation UUID to protect against repeated confirmation requests.
+
+## Part A: Transaction Idempotency
+
+### What Is Idempotency?
+
+Idempotency means that repeating the same request with the same unique key and identical transaction details should not create another transaction.
+
+For example:
+
+- First request: ₹500 credit transaction with key `K1`.
+- Second request: Same ₹500 credit transaction with key `K1`.
+
+Expected result: The existing transaction is returned instead of creating a duplicate.
+
+However, if the same key is reused with different transaction details, the backend rejects the request.
+
+### Architecture Flow
+
+```mermaid
+flowchart TD
+    A[Frontend Transaction Request] --> B[Generate or Supply UUID Key]
+    B --> C[POST /transactions/]
+    C --> D[Transaction API]
+    D --> E[Transaction Service]
+    E --> F{Idempotency Key Provided?}
+    F -->|No| G[Continue Transaction Validation]
+    F -->|Yes| H[Search Existing Transaction]
+    H --> I{Existing Transaction Found?}
+    I -->|No| G
+    I -->|Yes| J[Compare Original Payload]
+    J --> K{Payload Identical?}
+    K -->|Yes| L[Return Existing Transaction]
+    K -->|No| M[Reject Key Reuse]
+    G --> N[Validate Customer Ownership]
+    N --> O[Create Transaction]
+    O --> P[Commit Database Changes]
+    P --> Q[Return Transaction]
+```
+
+### 1. Frontend Idempotency Utility
+
+File: `frontend/src/lib/idempotency.ts`
+
+The utility exposes:
+
+`generateIdempotencyKey()`
+
+It generates a unique UUID using:
+
+```typescript
+export function generateIdempotencyKey(): string {
+  return crypto.randomUUID();
+}
+```
+
+This utility provides a reusable way to generate request identifiers.
+
+### 2. Backend API Support
+
+File: `backend/app/api/transaction.py`
+
+The transaction creation endpoint accepts an optional HTTP header:
+
+`Idempotency-Key`
+
+FastAPI validates the value as a UUID before passing it to the transaction service.
+
+The key is optional for the general transaction API.
+
+### 3. Transaction Database Model
+
+File: `backend/app/models/transaction.py`
+
+The `Transaction` model includes:
+
+```python
+idempotency_key: Mapped[uuid.UUID | None] = mapped_column(
+    UUID(as_uuid=True),
+    unique=True,
+    nullable=True
+)
+```
+
+The unique database constraint prevents multiple transactions from storing the same non-null idempotency key.
+
+### 4. Payload Validation
+
+File: `backend/app/services/transaction.py`
+
+The function:
+
+`validate_idempotent_payload()`
+
+compares the existing transaction with the incoming request.
+
+It checks:
+
+- Customer ID.
+- Transaction type.
+- Amount.
+- Description.
+- Due date.
+- Transaction source.
+
+If any of these values differ, the service raises a `ValueError`.
+
+This prevents the same idempotency key from being reused for a different transaction.
+
+### 5. Duplicate Request Handling
+
+The `create_transaction()` function first checks whether the supplied key already exists within the authenticated user's shop.
+
+If a matching transaction exists:
+
+- The payload is validated.
+- If identical, the existing transaction is returned.
+- If different, the request is rejected.
+
+The service also handles database `IntegrityError` exceptions.
+
+This covers concurrent duplicate confirmation requests where two requests attempt to insert the same unique key at nearly the same time.
+
+After rolling back the failed insert, the service checks whether the transaction was created by the competing request.
+
+If found, it validates the payload and returns the existing transaction.
+
+## Part B: Customer Ownership Validation
+
+### Problem Statement
+
+Every shop must access only its own customer records.
+
+A user must not be able to create a transaction using a customer ID belonging to another shop.
+
+### Customer Validation Architecture
+
+```mermaid
+flowchart TD
+    A[Incoming Transaction Request] --> B[Authenticated User]
+    B --> C[Find User's Shop]
+    C --> D[Get Requested Customer ID]
+    D --> E[Query Customer by ID and Shop ID]
+    E --> F{Customer Belongs to Shop?}
+    F -->|Yes| G[Allow Transaction Creation]
+    F -->|No| H[Reject Request]
+```
+
+### Implementation
+
+File: `backend/app/services/transaction.py`
+
+The transaction service retrieves the authenticated user's shop and validates the customer using both:
+
+- `Customer.id`
+- `Customer.shop_id`
+
+The service does not rely on the customer ID alone.
+
+If the customer is not found inside the current shop, it raises:
+
+`Customer not found in your shop`
+
+This protects the application's shop-level data isolation.
+
+## Part C: Voice Confirmation Idempotency
+
+The voice transaction workflow also uses idempotency.
+
+### Frontend Implementation
+
+File: `frontend/src/features/voice/components/voice-transaction-assistant.tsx`
+
+Before confirming a voice transaction, the frontend generates a confirmation UUID.
+
+The component stores the confirmation ID in React state.
+
+If the request needs to be retried, the same confirmation ID is reused rather than generating a new one.
+
+### Backend Implementation
+
+File: `backend/app/api/voice.py`
+
+The `/voice/confirm-transaction` endpoint receives the confirmation payload and calls the shared transaction service.
+
+It passes:
+
+- Transaction source: `TransactionSource.VOICE`
+- Idempotency key: `payload.confirmation_id`
+
+The existing transaction service then performs duplicate detection and payload validation.
+
+### Complete Voice Confirmation Flow
+
+```mermaid
+flowchart TD
+    A[Voice Preview Ready] --> B[User Confirms]
+    B --> C[Generate Confirmation UUID]
+    C --> D[POST /voice/confirm-transaction]
+    D --> E[Voice API]
+    E --> F[Transaction Service]
+    F --> G[Check Idempotency Key]
+    G --> H{Previously Processed?}
+    H -->|Yes| I[Validate Existing Payload]
+    H -->|No| J[Validate Customer and Transaction]
+    I --> K[Return Existing Transaction]
+    J --> L[Create New Voice Transaction]
+    L --> M[Commit Database]
+    M --> N[Return Saved Transaction]
+```
+
+## Important Implementation Note
+
+The backend supports optional idempotency keys for manual transaction creation, and the voice confirmation frontend actively reuses a confirmation UUID.
+
+The current manual transaction form at:
+
+`frontend/src/features/transactions/components/transaction-form.tsx`
+
+calls `createTransaction()` without passing an idempotency key.
+
+Therefore, the backend capability and reusable UUID utility are present, but the current manual form does not yet actively use that protection.
+
+## Complete Module File References
+
+| File | Responsibility |
+|---|---|
+| `frontend/src/lib/idempotency.ts` | UUID generation utility |
+| `frontend/src/features/transactions/transaction-api.ts` | Transaction API client |
+| `frontend/src/features/transactions/components/transaction-form.tsx` | Manual transaction form |
+| `backend/app/api/transaction.py` | Idempotency header handling |
+| `backend/app/services/transaction.py` | Duplicate detection and payload comparison |
+| `backend/app/models/transaction.py` | Unique idempotency key storage |
+| `backend/app/api/voice.py` | Voice confirmation integration |
+| `frontend/src/features/voice/components/voice-transaction-assistant.tsx` | Confirmation UUID management |
+
+### Key Learning
+
+This module demonstrates idempotent API design, UUID-based request identification, database uniqueness constraints, race-condition handling, payload validation, authenticated shop-level data isolation, and safe financial transaction processing.
+
+---
+
+# Batch 4 – Modules Covered
+
+| Module | Feature | Main Technologies |
+|---|---|---|
+| 13 | Customer Credit Risk Dashboard | Next.js, React, TypeScript |
+| 14 | Notifications & Payment Reminders | FastAPI, SQLAlchemy, PostgreSQL |
+| 15 | Improved Multilingual Voice Processing | Groq, LLM, Pydantic |
+| 16 | Transaction Idempotency & Customer Validation | FastAPI, UUID, SQLAlchemy |
+
+## Combined Architecture – Modules 13–16
+
+```mermaid
+flowchart TD
+    A[Shop Owner] --> B[Next.js Application]
+    B --> C[FastAPI Backend]
+
+    C --> D[Customer and Transaction Services]
+    D --> E[PostgreSQL]
+
+    D --> F[Credit Risk Assessment]
+    F --> G[Credit Risk Dashboard]
+
+    D --> H[Transaction Notification Creation]
+    H --> I[Notification Database]
+    I --> J[Notifications Page]
+
+    K[Reminder Job] --> L[Reminder Service]
+    L --> E
+    L --> I
+
+    B --> M[Voice and Text Assistant]
+    M --> N[Multilingual Extraction]
+    N --> O[Customer Matching]
+    O --> P[Review and Confirmation]
+    P --> Q[Idempotent Transaction Service]
+    Q --> E
+
+    Q --> R[Customer Ownership Validation]
+    R --> E
+```
+
+## Important Engineering Concepts Demonstrated
+
+1. Reusable frontend components and API clients.
+2. Explainable financial dashboards.
+3. Transaction-triggered notification creation.
+4. Timezone-aware reminder generation.
+5. PostgreSQL partial unique indexes and conflict handling.
+6. Multilingual prompt engineering.
+7. Strict JSON schema validation.
+8. Idempotent financial APIs.
+9. Database-level duplicate prevention.
+10. Authenticated shop-level data isolation.
+
+
+
+# 17. Responsive Workspace Layout & Authentication Flow
+
+## Overview
+
+The Responsive Workspace Layout provides a consistent application structure for authenticated shop owners.
+
+Instead of creating a separate navigation layout for every application page, the project uses a shared workspace shell containing the sidebar and main content area.
+
+The layout provides navigation to the AI Assistant, Dashboard, Customers, and Notifications sections.
+
+It also supports mobile navigation through a collapsible sidebar.
+
+## Architecture
+
+```mermaid
+flowchart TD
+    A[Next.js Root Layout] --> B[AuthProvider]
+    B --> C[WorkspaceShell]
+    C --> D{Current Route}
+    D -->|Public or Onboarding| E[Render Page Without Sidebar]
+    D -->|Workspace Page| F[Render Workspace Layout]
+    F --> G[AssistantSidebar]
+    F --> H[Main Content]
+    G --> I[AI Assistant]
+    G --> J[Dashboard]
+    G --> K[Customers]
+    G --> L[Notifications]
+    G --> M[Logout]
+```
+
+## 1. Root Application Layout
+
+File: `frontend/src/app/layout.tsx`
+
+The root layout is responsible for defining the application's global structure.
+
+It includes:
+
+- Global CSS.
+- Application metadata.
+- Authentication provider.
+- Suspense boundary.
+- Shared workspace shell.
+
+The `AuthProvider` wraps the application so that authentication information can be accessed by child components using the `useAuth()` hook.
+
+The `WorkspaceShell` wraps the page content and determines whether the shared navigation should be displayed.
+
+## 2. Authentication Context
+
+File: `frontend/src/features/auth/auth-context.tsx`
+
+The project uses React Context API to manage authentication state globally.
+
+The context maintains:
+
+| State | Purpose |
+|---|---|
+| `user` | Authenticated user information |
+| `token` | Authentication token |
+| `isLoading` | Initial authentication loading state |
+| `isAuthenticated` | Indicates whether a valid user and token are available |
+
+### Authentication Initialization
+
+When the application loads:
+
+1. The provider retrieves the saved token using `getToken()`.
+2. If no token exists, authentication loading finishes.
+3. If a token exists, the provider calls `getCurrentUser()`.
+4. If the request succeeds, user and token states are initialized.
+5. If validation fails, the saved token is removed.
+6. Authentication loading is completed.
+
+The context also exposes two important methods:
+
+- `setAuth()`: Saves the token and updates the authenticated user.
+- `logout()`: Removes the token and clears authentication state.
+
+### Custom Authentication Hook
+
+Components access authentication through:
+
+```typescript
+const {
+  user,
+  token,
+  isLoading,
+  isAuthenticated,
+  logout
+} = useAuth();
+```
+
+This avoids passing authentication information manually through multiple component levels.
+
+## 3. Workspace Shell
+
+File: `frontend/src/features/layout/components/workspace-shell.tsx`
+
+The `WorkspaceShell` component determines which pages should display the application sidebar.
+
+The following routes are treated as public or onboarding pages:
+
+- `/`
+- `/login`
+- `/register`
+- `/onboarding/*`
+
+These pages render without the workspace sidebar.
+
+All other routes render inside the shared workspace layout.
+
+### Responsive Sidebar
+
+The component maintains a `mobileOpen` state.
+
+On smaller screens:
+
+- The sidebar remains hidden initially.
+- A navigation button appears in the top header.
+- Clicking the button opens the sidebar.
+- An overlay allows the user to close it.
+- Navigation actions close the sidebar.
+
+On larger screens, the sidebar remains visible as the primary navigation.
+
+## 4. Assistant Sidebar
+
+File: `frontend/src/features/assistant/components/assistant-sidebar.tsx`
+
+The sidebar provides navigation to:
+
+| Navigation Item | Route |
+|---|---|
+| AI Assistant | `/assistant` |
+| Dashboard | `/dashboard` |
+| Customers | `/customers` |
+| Notifications | `/notifications` |
+
+It also provides two quick actions:
+
+- New Chat
+- Create Customer
+
+The sidebar displays the authenticated user's name and provides a logout action.
+
+The active navigation item is determined using Next.js `usePathname()`.
+
+When the user logs out, the authentication context is cleared and the application redirects to `/login`.
+
+## 5. Route-Level Authentication
+
+Authentication checks are also implemented inside individual protected pages.
+
+Examples include:
+
+- `frontend/src/app/assistant/page.tsx`
+- `frontend/src/app/customers/create/page.tsx`
+- `frontend/src/app/customers/[customerId]/page.tsx`
+- `frontend/src/app/notifications/page.tsx`
+
+These pages check authentication state and redirect unauthenticated users to the login page.
+
+The shared layout provides navigation structure, while individual pages handle their own authentication-dependent data loading.
+
+## Key Learning
+
+This module demonstrates React Context API, global authentication state, reusable layouts, responsive navigation, Next.js App Router, route-aware rendering, and client-side authentication checks.
+
+---
+
+# 18. AI Assistant – Voice and Text Transactions
+
+## Overview
+
+The AI Assistant is one of the central features of Universal Digital Khata.
+
+It allows shop owners to record customer credit and payment transactions using natural language instead of manually filling out transaction forms.
+
+Users can interact with the assistant through:
+
+1. Text instructions.
+2. Voice recordings.
+
+The assistant extracts transaction information, identifies the customer, prepares a preview, and asks the shop owner to confirm the transaction before saving it.
+
+It also integrates customer creation and credit risk information into the conversation workflow.
+
+## Example Interaction
+
+A shop owner can type or speak:
+
+"Rahul ko 500 rupaye ka udhar diya."
+
+The assistant processes the instruction and prepares a transaction containing:
+
+- Customer: Rahul
+- Transaction Type: Credit
+- Amount: ₹500
+- Description: Extracted from the instruction when available
+
+The shop owner reviews the extracted information and confirms the transaction.
+
+## High-Level Architecture
+
+```mermaid
+flowchart TD
+    A[Shop Owner] --> B[AI Assistant Interface]
+    B --> C{Input Method}
+    C -->|Text| D[Text Transaction API]
+    C -->|Voice| E[Microphone Recording]
+    E --> F[Audio Blob]
+    F --> G[Voice Transaction API]
+    D --> H[Transaction Extraction Service]
+    G --> I[Speech-to-Text Service]
+    I --> H
+    H --> J[Extract Customer and Transaction Details]
+    J --> K[Customer Matching]
+    K --> L{Customer and Details Valid?}
+    L -->|No| M[Needs Review]
+    L -->|Yes| N[Transaction Preview]
+    M --> O[User Corrects Information]
+    N --> O
+    O --> P[Confirm Transaction]
+    P --> Q[Transaction Service]
+    Q --> R[PostgreSQL]
+```
+
+## 1. Assistant Page
+
+File: `frontend/src/app/assistant/page.tsx`
+
+This page contains the main conversational interface.
+
+It manages several important application states:
+
+- Chat messages.
+- User text input.
+- Customer list.
+- Transaction drafts.
+- Selected customers.
+- Newly created customers.
+- Transaction confirmation states.
+- Saved transaction results.
+- Customer credit risk information.
+- Voice recording state.
+- Voice processing state.
+- Cancelled messages.
+- High-risk customer warnings.
+
+The page uses React state to maintain independent transaction information for different assistant messages.
+
+Each message receives a unique UUID so that its associated transaction draft, customer selection, and confirmation state can be tracked separately.
+
+## 2. Text-Based Transaction Entry
+
+The assistant accepts natural-language instructions through a text input.
+
+The main function is:
+
+`handleSubmit()`
+
+Its workflow:
+
+1. Reads the user's message.
+2. Removes unnecessary whitespace.
+3. Adds the message to the conversation.
+4. Calls `prepareTextTransaction()`.
+5. Receives extracted transaction information.
+6. Checks the customer matching result.
+7. Loads customer credit risk information when a customer is uniquely matched.
+8. Creates an assistant response with the extracted transaction preview.
+9. Displays missing information when manual review is required.
+
+The frontend does not directly save the extracted transaction at this stage.
+
+## 3. Voice-Based Interaction
+
+The assistant uses browser microphone APIs to capture audio.
+
+Important browser APIs:
+
+- `navigator.mediaDevices.getUserMedia()`
+- `MediaRecorder`
+- `Blob`
+
+The recording workflow:
+
+1. Requests microphone permission.
+2. Starts audio recording.
+3. Collects audio chunks.
+4. Stops recording when requested.
+5. Combines chunks into an audio Blob.
+6. Sends the recording to the backend.
+7. Receives the transcription and extracted transaction details.
+8. Displays the result in the conversation.
+
+The implementation also stops active media tracks when recording finishes or when the component is cleaned up.
+
+## 4. Voice API Integration
+
+File: `frontend/src/features/voice/voice-api.ts`
+
+The frontend exposes the following functions:
+
+| Function | Purpose |
+|---|---|
+| `transcribeVoice()` | Converts recorded audio into text |
+| `prepareVoiceTransaction()` | Prepares a transaction from audio |
+| `prepareTextTransaction()` | Prepares a transaction from natural-language text |
+| `confirmVoiceTransaction()` | Confirms and saves a voice transaction |
+
+The helper `createAudioFile()` converts the recorded Blob into a File with an appropriate audio extension.
+
+The API client sends audio using `FormData`.
+
+## 5. Transaction Preview
+
+The assistant receives one of two main response states:
+
+| Status | Meaning |
+|---|---|
+| `preview_ready` | Required information is available and a unique customer is matched |
+| `needs_review` | Some information is missing or customer matching is ambiguous |
+
+The preview displays:
+
+- Transcribed text.
+- Customer name.
+- Transaction type.
+- Amount.
+- Due date.
+- Description.
+- Customer matching information.
+- Missing fields.
+
+The user can review the information before saving.
+
+## 6. Customer Selection and Creation
+
+If a customer cannot be found, the assistant can open a customer creation form.
+
+The newly created customer is added to the assistant's local customer list and associated with the corresponding conversation message.
+
+The shop owner can then select the new customer for the transaction.
+
+This creates a connected workflow between natural-language transaction entry and customer management.
+
+## 7. Credit Risk Integration
+
+The assistant also integrates the credit risk API.
+
+When a customer is uniquely matched, the frontend can load the customer's credit risk assessment.
+
+The assistant maintains separate loading, error, and assessment states for customer risk information.
+
+It also includes high-risk warning state management in the transaction confirmation workflow.
+
+This helps the shop owner review customer repayment information while recording a new credit transaction.
+
+## 8. Transaction Confirmation
+
+Before saving, the assistant validates the selected customer and required transaction information.
+
+It also validates:
+
+- Customer selection.
+- Transaction type.
+- Positive transaction amount.
+- Required fields.
+- Due date restrictions.
+
+For payment transactions, a due date is not allowed.
+
+The assistant generates a confirmation UUID and reuses the same ID when retrying the confirmation request.
+
+After successful confirmation, the transaction result is stored in the conversation state.
+
+The backend performs the final validation and database insertion through the shared transaction service.
+
+## Important Files
+
+| File | Responsibility |
+|---|---|
+| `frontend/src/app/assistant/page.tsx` | Main conversational assistant |
+| `frontend/src/features/voice/voice-api.ts` | Voice and text API integration |
+| `frontend/src/features/voice/types.ts` | Voice request and response types |
+| `frontend/src/features/voice/components/voice-recorder.tsx` | Microphone recording component |
+| `frontend/src/features/voice/components/voice-transaction-assistant.tsx` | Voice preview and confirmation |
+| `backend/app/api/voice.py` | Voice and text transaction endpoints |
+| `backend/app/services/speech_to_text.py` | Audio transcription |
+| `backend/app/services/voice_extraction.py` | Transaction extraction |
+| `backend/app/services/customer_matching.py` | Customer identification |
+| `backend/app/services/transaction.py` | Transaction creation |
+
+## Key Learning
+
+This module demonstrates conversational UI development, browser audio recording, MediaRecorder API, Blob and FormData handling, LLM-powered information extraction, asynchronous API integration, React state management, human-in-the-loop confirmation, and idempotent transaction processing.
+
+---
+
+# 19. Customer Creation & Form Improvements
+
+## Overview
+
+The Customer Creation module provides a dedicated workflow for adding new customers to a shop's digital ledger.
+
+Every customer record contains essential identification and contact information.
+
+The same reusable customer form is also integrated into the AI Assistant workflow, allowing shop owners to create a customer without leaving the conversation.
+
+## Architecture
+
+```mermaid
+flowchart TD
+    A[Shop Owner] --> B{Entry Point}
+    B -->|Customers Page| C[Create Customer Page]
+    B -->|AI Assistant| D[Assistant Customer Form]
+    C --> E[Reusable Customer Form]
+    D --> E
+    E --> F[Frontend Validation]
+    F --> G[Customer API]
+    G --> H[FastAPI Customer Endpoint]
+    H --> I[Customer Service]
+    I --> J[Shop Ownership and Duplicate Validation]
+    J --> K[PostgreSQL]
+    K --> L[Customer Response]
+    L --> M[Update Frontend Customer State]
+```
+
+## 1. Reusable Customer Form
+
+File: `frontend/src/features/customers/components/customer-form.tsx`
+
+The `CustomerForm` component is designed to support customer creation from different parts of the application.
+
+It accepts the following props:
+
+| Prop | Purpose |
+|---|---|
+| `onCreated` | Callback after successful customer creation |
+| `onCancel` | Optional cancellation callback |
+| `initialFullName` | Optional initial customer name |
+
+The optional `initialFullName` prop is particularly useful when the AI Assistant has already extracted a customer name from the user's instruction.
+
+## 2. Customer Information Fields
+
+The form collects:
+
+- Customer full name.
+- Mobile number.
+- Address.
+- Additional notes.
+
+The first three fields are mandatory, while additional notes are optional.
+
+## 3. Frontend Validation
+
+Before calling the backend, the component performs input validation.
+
+### Full Name
+
+- Removes leading and trailing whitespace.
+- Requires at least two characters.
+
+### Mobile Number
+
+The form accepts a 10-digit Indian mobile number.
+
+The validation pattern is:
+
+```typescript
+/^[6-9]\d{9}$/
+```
+
+The input also removes non-numeric characters and limits the value to 10 digits.
+
+### Address
+
+The address must contain at least five characters.
+
+### Additional Notes
+
+Additional notes are optional and are trimmed before submission.
+
+## 4. Customer API Integration
+
+File: `frontend/src/features/customers/customer-api.ts`
+
+The form calls the reusable `createCustomer()` API function.
+
+The API sends the customer information to the backend using the authenticated API client.
+
+## 5. Dedicated Customer Creation Page
+
+File: `frontend/src/app/customers/create/page.tsx`
+
+This page provides a dedicated customer creation screen.
+
+Its responsibilities include:
+
+1. Checking authentication state.
+2. Redirecting unauthenticated users to login.
+3. Displaying the customer creation form.
+4. Handling successful creation.
+5. Returning the user to the Customers page.
+6. Supporting cancellation.
+
+The page reuses the same `CustomerForm` component rather than duplicating its validation and submission logic.
+
+## 6. Integration with AI Assistant
+
+File: `frontend/src/app/assistant/page.tsx`
+
+When the assistant cannot find a customer but has extracted a customer name, it can open the customer creation workflow.
+
+The assistant maintains the following states:
+
+- `creatingCustomerFor`
+- `createdCustomers`
+- `selectedCustomers`
+
+After successful creation:
+
+1. The new customer is added to the local customer list.
+2. The customer is associated with the relevant assistant message.
+3. The newly created customer is selected for that transaction.
+4. The user can continue reviewing and confirming the transaction.
+
+This reduces the need to navigate away from the assistant to create a missing customer.
+
+## 7. Customer Details Integration
+
+File: `frontend/src/app/customers/[customerId]/page.tsx`
+
+The customer details page combines several customer-related features:
+
+- Customer profile information.
+- Outstanding balance.
+- Credit risk assessment.
+- Manual transaction form.
+- Voice transaction assistant.
+- Transaction history.
+
+After a successful transaction, the page reloads customer information and triggers a fresh credit risk assessment.
+
+This connects customer creation and management with the transaction lifecycle.
+
+## Backend Validation
+
+The backend customer module provides the final validation and persistence layer.
+
+Important files:
+
+- `backend/app/api/customer.py`
+- `backend/app/services/customer.py`
+- `backend/app/schemas/customer.py`
+- `backend/app/models/customer.py`
+
+The backend validates customer ownership through the shop relationship and prevents duplicate mobile numbers within the same shop.
+
+The database also enforces a unique constraint on the combination of shop ID and mobile number.
+
+## Key Learning
+
+This module demonstrates reusable React forms, controlled inputs, client-side validation, authenticated API integration, component reuse, callback-based state updates, and integration between customer management and AI-assisted transaction workflows.
+
+---
+
+# 20. Offline Transaction Storage & Synchronization
+
+## Overview
+
+Small shops may experience unstable internet connectivity, especially when transactions need to be recorded quickly.
+
+The Offline Transaction module introduces local transaction storage using IndexedDB.
+
+Instead of requiring an immediate backend connection for every transaction, the application can save transaction data in the browser and maintain it in an offline queue.
+
+When synchronization is requested and authentication is available, queued transactions can be submitted to the backend.
+
+This provides the foundation for offline-first transaction recording.
+
+## Architecture
+
+```mermaid
+flowchart TD
+    A[Transaction Input] --> B[Validate Required Fields]
+    B --> C[Generate Local UUID]
+    C --> D[Generate Idempotency Key]
+    D --> E[Save to IndexedDB]
+    E --> F[Pending Offline Queue]
+    F --> G[User Requests Sync]
+    G --> H[Check Authentication Token]
+    H --> I[Load Pending and Failed Records]
+    I --> J[Mark Record as Syncing]
+    J --> K[POST Transaction API]
+    K --> L{Backend Response}
+    L -->|Success| M[Mark as Synced]
+    L -->|Failure| N[Mark as Failed]
+    N --> O[Increment Retry Count and Store Error]
+```
+
+## 1. IndexedDB Database Design
+
+File: `frontend/src/lib/offline-db.ts`
+
+The project uses the `idb` library to provide a Promise-based interface for IndexedDB.
+
+The database schema defines:
+
+- Database type: `KhataDB`
+- Offline record type: `OfflineTransaction`
+- Synchronization status type: `SyncStatus`
+
+The supported synchronization states are:
+
+| Status | Meaning |
+|---|---|
+| `pending` | Waiting for synchronization |
+| `syncing` | Currently being submitted |
+| `synced` | Successfully submitted to the backend |
+| `failed` | Synchronization failed |
+
+Each offline transaction stores:
+
+| Field | Purpose |
+|---|---|
+| `id` | Local transaction UUID |
+| `idempotencyKey` | Backend duplicate-prevention key |
+| `data` | Original transaction payload |
+| `syncStatus` | Current synchronization status |
+| `retryCount` | Number of failed synchronization attempts |
+| `createdAt` | Local creation timestamp |
+| `lastError` | Most recent synchronization error |
+
+The schema also defines indexes for synchronization status and creation time.
+
+## 2. Offline Database Initialization
+
+File: `frontend/src/lib/offline-storage.ts`
+
+The database is initialized through:
+
+`getOfflineDB()`
+
+The database configuration is:
+
+- Database name: `universal-digital-khata`
+- Database version: `1`
+- Object store: `offlineTransactions`
+- Primary key: `id`
+
+The implementation uses `openDB()` from the `idb` package.
+
+It also checks whether the code is executing in the browser because IndexedDB is not available during server-side rendering.
+
+A cached database promise avoids repeatedly opening the same database connection.
+
+## 3. Offline Transaction Queue
+
+File: `frontend/src/lib/offline-queue.ts`
+
+The main function is:
+
+`queueOfflineTransaction()`
+
+It accepts a normal `TransactionCreate` payload.
+
+It then generates:
+
+- A local transaction UUID.
+- A unique idempotency key.
+- A pending synchronization status.
+- An initial retry count of zero.
+- A creation timestamp.
+
+The complete transaction is saved locally using `saveOfflineTransaction()`.
+
+The function returns the newly created offline transaction.
+
+## 4. Offline Repository Layer
+
+File: `frontend/src/lib/offline-repository.ts`
+
+This module provides reusable functions for interacting with the local IndexedDB object store.
+
+### Available Functions
+
+| Function | Responsibility |
+|---|---|
+| `saveOfflineTransaction()` | Save a transaction locally |
+| `getOfflineTransaction()` | Retrieve a transaction using its local ID |
+| `getPendingOfflineTransactions()` | Retrieve pending transactions |
+| `getUnsyncedOfflineTransactions()` | Retrieve pending and failed transactions |
+| `updateOfflineTransaction()` | Update transaction status and metadata |
+| `deleteOfflineTransaction()` | Delete a local transaction |
+
+The repository sorts queued transactions by their creation timestamp.
+
+This allows the synchronization process to handle older transactions first.
+
+## 5. Offline Synchronization Service
+
+File: `frontend/src/lib/offline-sync.ts`
+
+The main synchronization function is:
+
+`syncOfflineTransactions()`
+
+It accepts the authentication token and returns an `OfflineSyncResult`.
+
+The result contains:
+
+- Number of successfully synchronized transactions.
+- Number of failed transactions.
+- Successfully returned transaction responses.
+
+### Synchronization Workflow
+
+1. Check that an authentication token is available.
+2. Retrieve pending and failed local transactions.
+3. Process transactions sequentially.
+4. Mark the current transaction as `syncing`.
+5. Submit it using the normal transaction API.
+6. Pass the stored idempotency key in the request header.
+7. Mark successful
