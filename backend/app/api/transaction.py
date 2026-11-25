@@ -1,5 +1,12 @@
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    status,
+    Query,
+    Header,
+)
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_user
@@ -31,6 +38,10 @@ router = APIRouter(
 )
 async def add_transaction(
     transaction_data: TransactionCreate,
+    idempotency_key: UUID | None = Header(
+        default=None,
+        alias="Idempotency-Key"
+    ),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
@@ -38,7 +49,8 @@ async def add_transaction(
         transaction = await create_transaction(
             transaction_data=transaction_data,
             current_user=current_user,
-            db=db
+            db=db,
+            idempotency_key=idempotency_key
         )
 
         return transaction
@@ -48,7 +60,6 @@ async def add_transaction(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(error)
         )
-
 
 @router.get("/customers/{customer_id}/balance")
 async def customer_balance(
