@@ -1,8 +1,8 @@
 
 export interface CustomerCreate {
   full_name: string;
-  mobile_number: string | null;
-  address: string | null;
+  mobile_number: string;
+  address: string;
   notes: string | null;
 }
 
