@@ -11,12 +11,18 @@ import type {
 // Create credit or payment transaction
 export async function createTransaction(
   data: TransactionCreate,
-  token: string
+  token: string,
+  idempotencyKey?: string
 ): Promise<TransactionResponse> {
   return apiRequest<TransactionResponse>("/transactions/", {
     method: "POST",
     body: data,
     token,
+    headers: idempotencyKey
+      ? {
+          "Idempotency-Key": idempotencyKey,
+        }
+      : undefined,
   });
 }
 

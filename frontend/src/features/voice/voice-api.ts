@@ -8,6 +8,7 @@ import type {
   VoiceTransactionConfirmationResponse,
 } from "./types";
 
+
 function createAudioFile(audio: Blob): File {
   // Remove codec parameters, e.g. ";codecs=opus".
   const contentType = audio.type.split(";")[0].trim().toLowerCase();
@@ -71,6 +72,21 @@ export async function confirmVoiceTransaction(
       method: "POST",
       body: data,
       token,
+    }
+  );
+}
+
+
+export async function prepareTextTransaction(
+  message: string,
+  token: string
+): Promise<PrepareVoiceTransactionResponse> {
+  return apiRequest<PrepareVoiceTransactionResponse>(
+    "/voice/prepare-text-transaction",
+    {
+      method: "POST",
+      token,
+      body: { message },
     }
   );
 }

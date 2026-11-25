@@ -58,4 +58,8 @@ export interface VoiceTransactionConfirm {
   due_date: string | null;
 }
 
+export interface TextTransactionRequest {
+  message: string;
+}
+
 export type VoiceTransactionConfirmationResponse = TransactionResponse;
