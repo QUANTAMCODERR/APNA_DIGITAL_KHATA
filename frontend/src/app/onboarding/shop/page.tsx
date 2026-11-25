@@ -60,7 +60,7 @@ export default function ShopOnboardingPage() {
         token
       );
 
-      router.replace("/dashboard");
+      router.replace("/assistant");
     } catch (err) {
       setError(
         err instanceof Error

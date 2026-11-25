@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, type FormEvent } from "react";
@@ -39,10 +38,9 @@ export default function LoginPage() {
         await getMyShop(token);
 
         // Existing shop owner
-        router.replace("/dashboard");
+        router.replace("/assistant");
       } catch (shopError) {
-        const message =
-          shopError instanceof Error ? shopError.message : "";
+        const message = shopError instanceof Error ? shopError.message : "";
 
         if (message.toLowerCase().includes("shop not found")) {
           // New user without a registered shop
@@ -55,7 +53,7 @@ export default function LoginPage() {
       setError(
         err instanceof Error
           ? err.message
-          : "Unable to login. Please try again."
+          : "Unable to login. Please try again.",
       );
     } finally {
       setIsLoading(false);
