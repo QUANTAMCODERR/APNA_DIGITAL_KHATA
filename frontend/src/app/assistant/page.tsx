@@ -524,7 +524,7 @@ export default function AssistantPage() {
       }));
 
       // Refresh customer risk after successful transaction
-      await loadCustomerRisk(customerId, true); 
+      await loadCustomerRisk(customerId, true);
     } catch (error) {
       alert(
         error instanceof Error
@@ -1288,6 +1288,48 @@ export default function AssistantPage() {
             onSubmit={handleSubmit}
             className="sticky bottom-0 mt-8 w-full rounded-2xl border border-gray-200 bg-white p-3 shadow-lg sm:p-4"
           >
+            {/* Voice Processing Indicator */}
+            {isProcessingVoice && (
+              <div
+                role="status"
+                aria-live="polite"
+                className="mb-3 flex items-center gap-3 rounded-xl border border-blue-200 bg-blue-50 p-4"
+              >
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100">
+                  <svg
+                    className="h-5 w-5 animate-spin text-blue-600"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                    />
+                  </svg>
+                </div>
+
+                <div>
+                  <p className="text-sm font-semibold text-blue-800">
+                    Processing your voice...
+                  </p>
+                  <p className="mt-1 text-xs text-blue-600">
+                    Transcribing audio and identifying transaction details.
+                    Please wait.
+                  </p>
+                </div>
+              </div>
+            )}
+
             <div className="flex w-full items-center gap-2">
               {/* Message Input */}
               <textarea

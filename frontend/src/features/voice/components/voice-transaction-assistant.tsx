@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -6,14 +5,9 @@ import { useState } from "react";
 import { useAuth } from "@/features/auth/auth-context";
 import VoiceRecorder from "./voice-recorder";
 
-import {
-  prepareVoiceTransaction,
-  confirmVoiceTransaction,
-} from "../voice-api";
+import { prepareVoiceTransaction, confirmVoiceTransaction } from "../voice-api";
 
-import type {
-  PrepareVoiceTransactionResponse,
-} from "../types";
+import type { PrepareVoiceTransactionResponse } from "../types";
 
 import type { TransactionResponse } from "@/features/transactions/types";
 
@@ -38,8 +32,9 @@ export default function VoiceTransactionAssistant({
 }: VoiceTransactionAssistantProps) {
   const { token } = useAuth();
 
-  const [result, setResult] =
-    useState<PrepareVoiceTransactionResponse | null>(null);
+  const [result, setResult] = useState<PrepareVoiceTransactionResponse | null>(
+    null,
+  );
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -67,7 +62,7 @@ export default function VoiceTransactionAssistant({
       setError(
         err instanceof Error
           ? err.message
-          : "Unable to process voice transaction."
+          : "Unable to process voice transaction.",
       );
     } finally {
       setIsProcessing(false);
@@ -97,7 +92,7 @@ export default function VoiceTransactionAssistant({
     // Prevent saving against a different customer than the open page.
     if (selectedCustomer.id !== customerId) {
       setError(
-        `Voice matched ${selectedCustomer.full_name}, but this customer page belongs to someone else. Please record again with the correct customer name.`
+        `Voice matched ${selectedCustomer.full_name}, but this customer page belongs to someone else. Please record again with the correct customer name.`,
       );
       return;
     }
@@ -113,10 +108,7 @@ export default function VoiceTransactionAssistant({
       return;
     }
 
-    if (
-      extracted.transaction_type === "payment" &&
-      extracted.due_date
-    ) {
+    if (extracted.transaction_type === "payment" && extracted.due_date) {
       setError("A due date cannot be assigned to a payment.");
       return;
     }
@@ -127,8 +119,7 @@ export default function VoiceTransactionAssistant({
       setSuccess("");
 
       // Reuse the same ID if the request needs to be retried.
-      const currentConfirmationId =
-        confirmationId || crypto.randomUUID();
+      const currentConfirmationId = confirmationId || crypto.randomUUID();
 
       if (!confirmationId) {
         setConfirmationId(currentConfirmationId);
@@ -142,11 +133,9 @@ export default function VoiceTransactionAssistant({
           amount: extracted.amount,
           description: extracted.description,
           due_date:
-            extracted.transaction_type === "credit"
-              ? extracted.due_date
-              : null,
+            extracted.transaction_type === "credit" ? extracted.due_date : null,
         },
-        token
+        token,
       );
 
       setSuccess("Transaction saved successfully!");
@@ -158,7 +147,7 @@ export default function VoiceTransactionAssistant({
       setError(
         err instanceof Error
           ? err.message
-          : "Unable to save voice transaction."
+          : "Unable to save voice transaction.",
       );
     } finally {
       setIsSaving(false);
@@ -196,6 +185,7 @@ export default function VoiceTransactionAssistant({
       <VoiceRecorder
         onAudioReady={handleAudioReady}
         disabled={isProcessing || isSaving}
+        isProcessing={isProcessing}
       />
 
       {isProcessing && (
@@ -254,8 +244,7 @@ export default function VoiceTransactionAssistant({
             <div>
               <p className="text-sm text-gray-500">Customer Name</p>
               <p className="mt-1 font-medium text-gray-900">
-                {result.extracted_transaction.customer_name ||
-                  "Not detected"}
+                {result.extracted_transaction.customer_name || "Not detected"}
               </p>
             </div>
 
@@ -279,7 +268,7 @@ export default function VoiceTransactionAssistant({
               <p className="mt-1 font-medium text-gray-900">
                 {result.extracted_transaction.due_date
                   ? new Date(
-                      result.extracted_transaction.due_date
+                      result.extracted_transaction.due_date,
                     ).toLocaleDateString("en-IN")
                   : "Not specified"}
               </p>
@@ -336,9 +325,7 @@ export default function VoiceTransactionAssistant({
 
           {result.missing_fields.length > 0 && (
             <div className="rounded-lg bg-yellow-50 p-3">
-              <p className="font-medium text-yellow-800">
-                Missing information
-              </p>
+              <p className="font-medium text-yellow-800">Missing information</p>
               <p className="mt-1 text-sm text-yellow-700">
                 {result.missing_fields.join(", ")}
               </p>
@@ -347,9 +334,8 @@ export default function VoiceTransactionAssistant({
 
           {result.status === "needs_review" && (
             <p className="rounded-lg bg-yellow-50 p-3 text-sm text-yellow-800">
-              Please review the detected information. This transaction
-              cannot be saved until all required details and the customer
-              are confirmed.
+              Please review the detected information. This transaction cannot be
+              saved until all required details and the customer are confirmed.
             </p>
           )}
 
