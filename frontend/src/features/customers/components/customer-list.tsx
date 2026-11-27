@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -39,9 +38,7 @@ export default function CustomerList({
     return (
       <div className="rounded-xl border border-dashed border-gray-300 bg-white p-10 text-center">
         <div className="mb-3 text-4xl">👥</div>
-        <h3 className="font-semibold text-gray-900">
-          No customers yet
-        </h3>
+        <h3 className="font-semibold text-gray-900">No customers yet</h3>
         <p className="mt-2 text-sm text-gray-500">
           Add your first customer to start managing your digital khata.
         </p>
@@ -52,9 +49,7 @@ export default function CustomerList({
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
       <div className="border-b border-gray-200 px-5 py-4">
-        <h2 className="font-semibold text-gray-900">
-          All Customers
-        </h2>
+        <h2 className="font-semibold text-gray-900">All Customers</h2>
         <p className="mt-1 text-sm text-gray-500">
           {customers.length} customer(s) displayed
         </p>
@@ -89,7 +84,14 @@ export default function CustomerList({
             <div className="hidden text-right sm:block">
               <p className="text-xs text-gray-400">Added on</p>
               <p className="mt-1 text-sm text-gray-600">
-                {new Date(customer.created_at).toLocaleDateString("en-IN")}
+                {new Date(customer.created_at).toLocaleString("en-IN", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: true,
+                })}
               </p>
             </div>
 

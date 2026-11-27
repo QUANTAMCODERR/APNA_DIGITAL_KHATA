@@ -90,7 +90,7 @@ export default function DashboardPage() {
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <p className="text-sm text-slate-500">
-                Universal Digital Khata
+                Aapka Digital Khata
               </p>
 
               <h1 className="mt-2 text-2xl font-bold text-slate-900">

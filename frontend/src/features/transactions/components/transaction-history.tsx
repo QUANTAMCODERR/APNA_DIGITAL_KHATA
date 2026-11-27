@@ -1,4 +1,3 @@
-
 "use client";
 
 import type { TransactionResponse } from "@/features/transactions/types";
@@ -42,9 +41,7 @@ export default function TransactionHistory({
     return (
       <div className="rounded-xl border border-dashed border-gray-300 bg-white p-8 text-center">
         <div className="mb-3 text-4xl">📒</div>
-        <h3 className="font-semibold text-gray-900">
-          No transactions yet
-        </h3>
+        <h3 className="font-semibold text-gray-900">No transactions yet</h3>
         <p className="mt-2 text-sm text-gray-500">
           Credit and payment records will appear here.
         </p>
@@ -55,9 +52,7 @@ export default function TransactionHistory({
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
       <div className="border-b border-gray-200 px-5 py-4">
-        <h2 className="font-semibold text-gray-900">
-          Transaction History
-        </h2>
+        <h2 className="font-semibold text-gray-900">Transaction History</h2>
 
         <p className="mt-1 text-sm text-gray-500">
           {transactions.length} transaction(s)
@@ -93,17 +88,23 @@ export default function TransactionHistory({
                 </p>
 
                 <p className="mt-1 text-xs text-gray-400">
-                  {new Date(
-                    transaction.transaction_date
-                  ).toLocaleString("en-IN")}
+                  {new Date(transaction.transaction_date).toLocaleString(
+                    "en-IN",
+                    {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: true,
+                    },
+                  )}
                 </p>
 
                 {transaction.due_date && (
                   <p className="mt-1 text-xs text-gray-500">
                     Due:{" "}
-                    {new Date(
-                      transaction.due_date
-                    ).toLocaleDateString("en-IN")}
+                    {new Date(transaction.due_date).toLocaleDateString("en-IN")}
                   </p>
                 )}
               </div>

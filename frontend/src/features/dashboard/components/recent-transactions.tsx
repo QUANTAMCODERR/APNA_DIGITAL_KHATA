@@ -1,4 +1,3 @@
-
 import type { RecentTransaction } from "../types";
 
 interface RecentTransactionsProps {
@@ -13,11 +12,14 @@ function formatAmount(amount: number | string): string {
   }).format(Number(amount));
 }
 
-function formatDate(date: string): string {
+function formatDateTime(date: string): string {
   return new Intl.DateTimeFormat("en-IN", {
     day: "2-digit",
     month: "short",
     year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
   }).format(new Date(date));
 }
 
@@ -41,7 +43,7 @@ export default function RecentTransactions({
               <tr className="border-b border-slate-200 text-slate-500">
                 <th className="pb-3 font-medium">Customer</th>
                 <th className="pb-3 font-medium">Type</th>
-                <th className="pb-3 font-medium">Date</th>
+                <th className="pb-3 font-medium">Date & Time</th>
                 <th className="pb-3 text-right font-medium">Amount</th>
               </tr>
             </thead>
@@ -76,7 +78,7 @@ export default function RecentTransactions({
                   </td>
 
                   <td className="py-4 text-slate-500">
-                    {formatDate(transaction.transaction_date)}
+                    {formatDateTime(transaction.transaction_date)}
                   </td>
 
                   <td className="py-4 text-right font-semibold text-slate-800">
