@@ -31,7 +31,12 @@ export async function apiRequest<T>(
     requestBody = JSON.stringify(body);
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+  const requestUrl = `${API_BASE_URL}${endpoint}`;
+
+  console.log("API BASE URL:", API_BASE_URL);
+  console.log("FINAL REQUEST URL:", requestUrl);
+
+  const response = await fetch(requestUrl, {
     ...restOptions,
     headers: requestHeaders,
     body: requestBody,
